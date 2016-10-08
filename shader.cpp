@@ -2,7 +2,6 @@
 #include "d3dUtil.h"
 #include "d3dApp.h"
 #include <fstream>
-#include <string>
 
 SEShader::~SEShader() {
 	if (pixelShader) ReleaseCOM(pixelShader);
@@ -17,7 +16,7 @@ void SEShader::Init(const char * _filename) {
 	std::string filename(_filename);
 	std::ifstream ifs;
 
-	ifs.open("ShaderOut/" + filename + "VS.cso");
+	ifs.open("ShaderOut/" + filename + "VS.cso", std::ios::binary);
 	if (ifs) {
 
 		ifs.seekg(0, ifs.end);	
@@ -54,7 +53,7 @@ void SEShader::Init(const char * _filename) {
 
 	}
 
-	ifs.open("ShaderOut/SimplePixelShader.cso");
+	ifs.open("ShaderOut/" + filename + "PS.cso", std::ios::binary);
 	if (ifs) {
 		ifs.seekg(0, ifs.end);
 		UINT length = ifs.tellg();
@@ -69,9 +68,6 @@ void SEShader::Init(const char * _filename) {
 			nullptr,
 			&pixelShader
 		);
-
-		assert(vertexShader);
-		assert(pixelShader);
 
 		D3D11_BUFFER_DESC cbd = {0};
 		cbd.ByteWidth = sizeof(PSConstantBufferLayout);
