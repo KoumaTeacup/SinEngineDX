@@ -24,7 +24,7 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 D3DApp::D3DApp(HINSTANCE hInstance)
 :	mhAppInst(hInstance),
-	mMainWndCaption(L"D3D11 Application"),
+	mMainWndCaption(L"The Grand 3D Graphics Demo By Shin Chen"),
 	md3dDriverType(D3D_DRIVER_TYPE_HARDWARE),
 	mClientWidth(800),
 	mClientHeight(600),
@@ -37,7 +37,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	m4xMsaaQuality(0),
  
 	md3dDevice(0),
-	md3dImmediateContext(0),
+	md3dContext(0),
 	mSwapChain(0),
 	mDepthStencilBuffer(0),
 	mRenderTargetView(0),
@@ -59,10 +59,10 @@ D3DApp::~D3DApp()
 	ReleaseCOM(mDepthStencilBuffer);
 
 	// Restore all default settings.
-	if( md3dImmediateContext )
-		md3dImmediateContext->ClearState();
+	if( md3dContext )
+		md3dContext->ClearState();
 
-	ReleaseCOM(md3dImmediateContext);
+	ReleaseCOM(md3dContext);
 	ReleaseCOM(md3dDevice);
 }
 
@@ -129,7 +129,7 @@ bool D3DApp::Init()
  
 void D3DApp::OnResize()
 {
-	assert(md3dImmediateContext);
+	assert(md3dContext);
 	assert(md3dDevice);
 	assert(mSwapChain);
 
@@ -143,10 +143,10 @@ void D3DApp::OnResize()
 
 	// Resize the swap chain and recreate the render target view.
 
-	HR(mSwapChain->ResizeBuffers(1, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+	mSwapChain->ResizeBuffers(1, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
 	ID3D11Texture2D* backBuffer;
-	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
-	HR(md3dDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView));
+	mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
+	md3dDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView);
 	ReleaseCOM(backBuffer);
 
 	// Create the depth/stencil buffer and view.
@@ -177,13 +177,13 @@ void D3DApp::OnResize()
 	depthStencilDesc.CPUAccessFlags = 0; 
 	depthStencilDesc.MiscFlags      = 0;
 
-	HR(md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
-	HR(md3dDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
+	md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer);
+	md3dDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView);
 
 
 	// Bind the render target view and depth/stencil view to the pipeline.
 
-	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+	md3dContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 	
 
 	// Set the viewport transform.
@@ -195,7 +195,7 @@ void D3DApp::OnResize()
 	mScreenViewport.MinDepth = 0.0f;
 	mScreenViewport.MaxDepth = 1.0f;
 
-	md3dImmediateContext->RSSetViewports(1, &mScreenViewport);
+	md3dContext->RSSetViewports(1, &mScreenViewport);
 }
  
 LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -372,21 +372,27 @@ bool D3DApp::InitDirect3D()
 	// Create the device and device context.
 
 	UINT createDeviceFlags = 0;
-#if defined(DEBUG) || defined(_DEBUG)  
-    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
+	#if defined(DEBUG) || defined(_DEBUG)  
+	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	#endif
 
-	D3D_FEATURE_LEVEL featureLevel;
+	D3D_FEATURE_LEVEL featureLevels[] =
+	{
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0,
+	};
+
 	HRESULT hr = D3D11CreateDevice(
-			0,                 // default adapter
+			nullptr,           // default adapter
 			md3dDriverType,
-			0,                 // no software device
+			nullptr,           // no software device
 			createDeviceFlags, 
-			0, 0,              // default feature level array
+			featureLevels,
+			ARRAYSIZE(featureLevels),
 			D3D11_SDK_VERSION,
 			&md3dDevice,
-			&featureLevel,
-			&md3dImmediateContext);
+			nullptr,
+			&md3dContext);
 
 	if( FAILED(hr) )
 	{
@@ -394,18 +400,11 @@ bool D3DApp::InitDirect3D()
 		return false;
 	}
 
-	if( featureLevel != D3D_FEATURE_LEVEL_11_0 )
-	{
-		MessageBox(0, L"Direct3D Feature Level 11 unsupported.", 0, 0);
-		return false;
-	}
-
 	// Check 4X MSAA quality support for our back buffer format.
 	// All Direct3D 11 capable devices support 4X MSAA for all render 
 	// target formats, so we only need to check quality support.
 
-	HR(md3dDevice->CheckMultisampleQualityLevels(
-		DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality));
+	md3dDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality);
 	assert( m4xMsaaQuality > 0 );
 
 	// Fill out a DXGI_SWAP_CHAIN_DESC to describe our swap chain.
@@ -445,15 +444,15 @@ bool D3DApp::InitDirect3D()
 	// This function is being called with a device from a different IDXGIFactory."
 
 	IDXGIDevice* dxgiDevice = 0;
-	HR(md3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice));
+	md3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
 	      
 	IDXGIAdapter* dxgiAdapter = 0;
-	HR(dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter));
+	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
 
 	IDXGIFactory* dxgiFactory = 0;
-	HR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory));
+	dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
 
-	HR(dxgiFactory->CreateSwapChain(md3dDevice, &sd, &mSwapChain));
+	dxgiFactory->CreateSwapChain(md3dDevice, &sd, &mSwapChain);
 	
 	ReleaseCOM(dxgiDevice);
 	ReleaseCOM(dxgiAdapter);

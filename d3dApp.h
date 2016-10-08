@@ -13,10 +13,16 @@
 
 #include "d3dUtil.h"
 #include "GameTimer.h"
+#include "VAO.h"
+#include "shader.h"
+#include "states.h"
 #include <string>
 
 class D3DApp
 {
+	friend SEVAO;
+	friend SEShader;
+	friend SERenderStates;
 public:
 	D3DApp(HINSTANCE hInstance);
 	virtual ~D3DApp();
@@ -60,7 +66,7 @@ protected:
 	GameTimer mTimer;
 
 	ID3D11Device* md3dDevice;
-	ID3D11DeviceContext* md3dImmediateContext;
+	ID3D11DeviceContext* md3dContext;
 	IDXGISwapChain* mSwapChain;
 	ID3D11Texture2D* mDepthStencilBuffer;
 	ID3D11RenderTargetView* mRenderTargetView;

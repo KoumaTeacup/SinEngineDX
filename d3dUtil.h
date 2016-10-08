@@ -19,8 +19,6 @@
 #include <fstream>
 #include <vector>
 #include "DDSTextureLoader.h"
-#include "d3dx11Effect.h"
-#include "dxerr.h"
 #include "MathHelper.h"
 #include "LightHelper.h"
 
@@ -28,23 +26,23 @@
 // Simple d3d error checker for book demos.
 //---------------------------------------------------------------------------------------
 
-#if defined(DEBUG) | defined(_DEBUG)
-	#ifndef HR
-	#define HR(x)                                              \
-	{                                                          \
-		HRESULT hr = (x);                                      \
-		if(FAILED(hr))                                         \
-		{                                                      \
-			DXTrace(__FILEW__, (DWORD)__LINE__, hr, L#x, true); \
-		}                                                      \
-	}
-	#endif
-
-#else
-	#ifndef HR
-	#define HR(x) (x)
-	#endif
-#endif 
+//#if defined(DEBUG) | defined(_DEBUG)
+//	#ifndef HR
+//	#define HR(x)                                              \
+//	{                                                          \
+//		HRESULT hr = (x);                                      \
+//		if(FAILED(hr))                                         \
+//		{                                                      \
+//			DXTrace(__FILEW__, (DWORD)__LINE__, hr, L#x, true); \
+//		}                                                      \
+//	}
+//	#endif
+//
+//#else
+//	#ifndef HR
+//	#define HR(x) (x)
+//	#endif
+//#endif 
 
 
 //---------------------------------------------------------------------------------------
@@ -105,7 +103,7 @@ public:
 };
 
 // Order: left, right, bottom, top, near, far.
-void ExtractFrustumPlanes(DirectX::XMFLOAT4 planes[6], DirectX::CXMMATRIX M);
+// void ExtractFrustumPlanes(DirectX::XMFLOAT4 planes[6], DirectX::CXMMATRIX M);
 
 
 // #define XMGLOBALCONST extern CONST __declspec(selectany)
