@@ -8,6 +8,8 @@
 
 #include "framework.h"
 
+using namespace DirectX;
+
 Framework::Framework(HINSTANCE hInstance)
 	: D3DApp(hInstance),
 	defaultState(this),
@@ -31,6 +33,7 @@ bool Framework::Init() {
 
 	defaultShader.Init("Default");
 	defaultState.Init();
+	defaultState.Set();
 
 	return true;
 }
@@ -40,9 +43,9 @@ void Framework::OnResize() {
 }
 
 void Framework::UpdateScene(float dt) {
-	static FLOAT mPhi = 70.0f;
+	static FLOAT mPhi = XM_PI * 0.4f;
 	static FLOAT mTheta = 0.0f;
-	static const FLOAT mRadius = 3.0f;
+	static const FLOAT mRadius = 10.0f;
 
 	// Convert Spherical to Cartesian coordinates.
 	float x = mRadius*sinf(mPhi)*cosf(mTheta);
@@ -53,18 +56,25 @@ void Framework::UpdateScene(float dt) {
 	XMMATRIX M = XMMatrixIdentity();
 
 	// Build the view matrix.
-	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+	XMVECTOR pos = XMVectorSet(x, y, z, 0.0f);
+	pos = XMVectorSet(0.0f, 0.1f, 0.0f, 0.0f);
 	XMVECTOR target = XMVectorZero();
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 
-	// Build the project matrix
-	XMMATRIX P = XMMatrixPerspectiveFovLH(50.0f, (float)mClientWidth / (float)mClientHeight, 0.1f, 10000.0f);
+	M = XMMatrixTranslation(0.f, 0.f, 2.f * sinf(mTheta));
+	M = XMMatrixTranslation(0.5f, 0.0f, 0.f);
+	//M = XMMatrixRotationY(mTheta) * XMMatrixTranslation(0.f, 0.f, 0.5f);
 
+	// Build the project matrix
+	XMMATRIX P = XMMatrixPerspectiveFovLH(XM_PIDIV4, (float)mClientWidth / (float)mClientHeight, 0.1f, 1000.0f);
+
+	// Concatenate Model - View - Projection matrix
 	XMMATRIX MVP = XMMatrixMultiply(XMMatrixMultiply(M, V), P);
-	XMStoreFloat4x4(&defaultShader.GetVSConstantData().mvp, MVP);
+	XMStoreFloat4x4(&defaultShader.GetVSConstantData().mvp, XMMatrixTranspose(M));
+	//XMStoreFloat4x4(&defaultShader.GetVSConstantData().mvp, XMMatrixIdentity());
 	
-	mTheta += 1.0f;
+	mTheta += dt;
 }
 
 void Framework::DrawScene() {

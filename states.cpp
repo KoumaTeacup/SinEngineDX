@@ -8,8 +8,8 @@ void SERenderStates::Set() {
 void SERenderStates::Init() {
 	D3D11_RASTERIZER_DESC rd;
 	ZeroMemory(&rd, sizeof(D3D11_RASTERIZER_DESC));
-	rd.CullMode = D3D11_CULL_BACK;
-	rd.FillMode = D3D11_FILL_SOLID;
+	rd.CullMode = D3D11_CULL_NONE;
+	rd.FillMode = D3D11_FILL_SOLID;//D3D11_FILL_WIREFRAME D3D11_FILL_SOLID
 	rd.FrontCounterClockwise = false;
 	rd.DepthClipEnable = true;
 

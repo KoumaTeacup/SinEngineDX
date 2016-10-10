@@ -21,6 +21,6 @@ PData main(VData vertexIn) {
 	PData vertexOut;
 
 	vertexOut.position = mul(float4(vertexIn.position, 1.0f), gMVP);
-	vertexOut.color = float4(1.0, 0.0, 0.0, 1.0);
+	vertexOut.color.rgb = vertexIn.position + float3(0.5f, 0.5f, 0.5f);
 	return vertexOut;
 }
