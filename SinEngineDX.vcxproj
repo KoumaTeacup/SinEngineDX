@@ -171,6 +171,7 @@
     <ClInclude Include="lighthelper.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="quaternion.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="states.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="states.cpp" />
