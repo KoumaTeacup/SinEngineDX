@@ -19,6 +19,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{2a649379-0fbe-4a91-aa1e-9c44927cf898}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MeshData">
+      <UniqueIdentifier>{6eaa8125-4289-4943-8c71-42041fab05a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dApp.h">
@@ -59,6 +62,24 @@
     </ClInclude>
     <ClInclude Include="states.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FBX.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bone.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="animation.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshes.h">
+      <Filter>MeshData</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +123,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="states.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FBX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bone.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

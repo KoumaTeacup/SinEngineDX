@@ -32,10 +32,12 @@ void SEShader::Init(const char * _filename) {
 
 		// Define & Create vertex shader input
 		D3D11_INPUT_ELEMENT_DESC ied[vertexDataInputCount] = {
-			{"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(VertexData, VertexData::position), D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(VertexData, VertexData::normal), D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::position), D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::normal), D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexData, VertexData::texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(VertexData, VertexData::tangent), D3D11_INPUT_PER_VERTEX_DATA, 0}
+			{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::tangent), D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::color), D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"USE_VERTEX_COLOR", 0, DXGI_FORMAT_R32_UINT, 0, offsetof(VertexData, VertexData::useVertexColor), D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 
 		framework->md3dDevice->CreateInputLayout(ied, ARRAYSIZE(ied), content, length, &inputLayout);
