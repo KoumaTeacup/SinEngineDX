@@ -2,8 +2,8 @@
 
 #include "VAO.h"
 
-const float sin30 = sinf(3.14159265 / 6);
-const float cos30 = cosf(3.14159265 / 6);
+const float sin30 = sinf(3.14159265f / 6.0f);
+const float cos30 = cosf(3.14159265f / 6.0f);
 
 // Triangle
 const int triangleVCount = 3;

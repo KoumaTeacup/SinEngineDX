@@ -10,8 +10,8 @@ public:
 	// copy ctor
 	SEQuaternion(const SEQuaternion &rhs);
 	// misc ctor
-	SEQuaternion(float _s, DirectX::XMFLOAT3 _v);
-	SEQuaternion(DirectX::XMFLOAT3 _v);
+	SEQuaternion(float _s, DirectX::FXMVECTOR);
+	SEQuaternion(DirectX::FXMVECTOR);
 	SEQuaternion(float x, float y, float z);
 	SEQuaternion(float _s, float x, float y, float z);
 
@@ -34,21 +34,29 @@ public:
 	SEQuaternion operator/(float c) const;
 	SEQuaternion& operator/=(float c);
 
+	// Getter
+	float getReal() const;
+	DirectX::XMVECTOR getImagine() const;
+	DirectX::XMVECTOR get() const;
+
 	// unary operation
 	SEQuaternion conj() const;
 	float norm() const;
 	SEQuaternion inverse() const;
-	float getReal() const;
-	float dot(const SEQuaternion &rhs) const;
 	bool isUnit() const;
 	SEQuaternion &identify();
 
 	// binary operation
-	SEQuaternion rotateBy(const SEQuaternion & rhs) const;
-	SEQuaternion &rotateBy(const SEQuaternion & rhs);
+	float dot(const SEQuaternion &rhs) const;
 
-	// static operation
-	static SEQuaternion fromMatrix(float matrix);
+	DirectX::XMVECTOR rotate(DirectX::FXMVECTOR element) const;
+
+	// conversion
+	DirectX::XMMATRIX toMatrix() const;
+	DirectX::XMVECTOR toEuler() const;
+	static SEQuaternion fromMatrix(DirectX::CXMMATRIX matrix);
+	static SEQuaternion fromEuler(DirectX::FXMVECTOR euler);
+	
 private:
 	float s;
 	DirectX::XMFLOAT3 v;

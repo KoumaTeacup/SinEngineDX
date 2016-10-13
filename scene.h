@@ -14,7 +14,7 @@ public:
 	SEScene(FbxManager *manager, const char * filename);
 	~SEScene();
 
-	void loadSkeleton(FbxNode *skeletonNode, SEBone * parent);
+	void loadSkeleton(FbxNode *skeletonNode, SEBone * parent, FbxScene *scene);
 	void drawSkeleton();
 
 private:

@@ -177,6 +177,7 @@
     <ClInclude Include="states.h" />
     <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="VAO.h" />
+    <ClInclude Include="VQS.h" />
     <ClInclude Include="Waves.h" />
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +200,7 @@
     <ClCompile Include="states.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="VAO.cpp" />
+    <ClCompile Include="VQS.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>
   <ItemGroup>

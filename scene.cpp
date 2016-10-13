@@ -15,15 +15,18 @@ SEScene::SEScene(FbxManager * manager, const char * filename) :
 	importer->Import(scene);
 	importer->Destroy();
 
-	// Import bone nodes
 	FbxNode *root = scene->GetRootNode();
-	
-	for (int i = 0; i < root->GetChildCount(); i++) {
-		FbxNode *child = root->GetChild(i);
+	int numChildren = root->GetChildCount();
+
+	// Loop through the scene
+	for (int iNode = 0; iNode < numChildren; iNode++) {
+		FbxNode *child = root->GetChild(iNode);
 		FbxNodeAttribute::EType attributeType = child->GetNodeAttribute()->GetAttributeType();
+
 		switch (attributeType) {
 		case FbxNodeAttribute::eSkeleton:
-			loadSkeleton(child, nullptr); 
+			// Import bone nodes
+			loadSkeleton(child, nullptr, scene);
 			break;
 		default:
 			break;
@@ -39,7 +42,7 @@ SEScene::~SEScene() {
 	}
 }
 
-void SEScene::loadSkeleton(FbxNode * skeletonNode, SEBone *parent) {
+void SEScene::loadSkeleton(FbxNode * skeletonNode, SEBone *parent, FbxScene *scene) {
 	SEBone *newBone = new SEBone();
 
 	if (parent) 
@@ -47,10 +50,20 @@ void SEScene::loadSkeleton(FbxNode * skeletonNode, SEBone *parent) {
 	else 
 		skeletons.push_back(newBone);
 
+	// local transform
 	FbxVector4 fbxTrans = skeletonNode->EvaluateLocalTransform();
 	FbxVector4 fbxRotate = skeletonNode->GetPreRotation(FbxNode::eSourcePivot);
 	DirectX::XMFLOAT3 localTranslate((float)fbxTrans[0], (float)fbxTrans[1], (float)fbxTrans[2]);
 	DirectX::XMFLOAT3 boneOrient((float)fbxRotate[0], (float)fbxRotate[0], (float)fbxRotate[0]);
+
+	// animation curve
+
+	int numTakes = scene->GetSrcObjectCount<FbxAnimStack>();
+	for (int iTake = 0; iTake < numTakes; iTake++) {
+		// Assuming 1 layer
+		FbxAnimLayer *animlayer = scene->GetSrcObject<FbxAnimStack>(iTake)->GetMember<FbxAnimLayer>(0);
+		skeletonNode->LclTranslation.GetCurve(animlayer, FBXSDK_CURVENODE_COMPONENT_X);
+	}
 
 	newBone->loadBone(skeletonNode->GetName(), localTranslate, boneOrient);
 

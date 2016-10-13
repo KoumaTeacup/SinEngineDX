@@ -84,6 +84,9 @@
     <ClInclude Include="quaternion.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="VQS.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="framework.cpp">
@@ -144,6 +147,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="quaternion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VQS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
