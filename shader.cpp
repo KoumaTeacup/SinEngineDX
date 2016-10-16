@@ -28,7 +28,7 @@ void SEShader::Init(const char * _filename) {
 		ifs.close();
 
 		// Create vertex shader
-		framework->md3dDevice->CreateVertexShader(content, length, nullptr, &vertexShader);
+		SEDevice->CreateVertexShader(content, length, nullptr, &vertexShader);
 
 		// Define & Create vertex shader input
 		D3D11_INPUT_ELEMENT_DESC ied[vertexDataInputCount] = {
@@ -40,7 +40,7 @@ void SEShader::Init(const char * _filename) {
 			{"USE_VERTEX_COLOR", 0, DXGI_FORMAT_R32_UINT, 0, offsetof(VertexData, VertexData::useVertexColor), D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 
-		framework->md3dDevice->CreateInputLayout(ied, ARRAYSIZE(ied), content, length, &inputLayout);
+		SEDevice->CreateInputLayout(ied, ARRAYSIZE(ied), content, length, &inputLayout);
 
 		// Define & Create vertex shader constant buffer
 		D3D11_BUFFER_DESC cbd = {0};
@@ -51,7 +51,7 @@ void SEShader::Init(const char * _filename) {
 		cbd.MiscFlags = 0;
 		cbd.StructureByteStride = 0;
 			
-		framework->md3dDevice->CreateBuffer(&cbd, nullptr, &VSConstantBuffer);
+		SEDevice->CreateBuffer(&cbd, nullptr, &VSConstantBuffer);
 
 	}
 
@@ -66,7 +66,7 @@ void SEShader::Init(const char * _filename) {
 		ifs.close();
 
 		// Create pixel shader
-		framework->md3dDevice->CreatePixelShader(content, length, nullptr, &pixelShader);
+		SEDevice->CreatePixelShader(content, length, nullptr, &pixelShader);
 
 		// Define & Create pixel shader constant buffer
 		D3D11_BUFFER_DESC cbd = {0};
@@ -77,31 +77,33 @@ void SEShader::Init(const char * _filename) {
 		cbd.MiscFlags = 0;
 		cbd.StructureByteStride = 0;
 
-		framework->md3dDevice->CreateBuffer(&cbd, nullptr, &PSConstantBuffer);
+		SEDevice->CreateBuffer(&cbd, nullptr, &PSConstantBuffer);
 
 	}
 }
 
 void SEShader::Bind() {
 	// Bind all shaders for this pass
-	framework->md3dContext->VSSetShader(vertexShader, nullptr, 0);
-	framework->md3dContext->PSSetShader(pixelShader, nullptr, 0);
+	SEContext->VSSetShader(vertexShader, nullptr, 0);
+	SEContext->PSSetShader(pixelShader, nullptr, 0);
+	SEContext->IASetInputLayout(inputLayout);
+}
 
-	framework->md3dContext->IASetInputLayout(inputLayout);
+void SEShader::Draw() {
 
 	// Update constant buffer
 	D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 	ZeroMemory(&mappedSubresource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-	framework->md3dContext->Map(VSConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+	SEContext->Map(VSConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 	memcpy(mappedSubresource.pData, &VSLocalConstantCopy.mvp, sizeof(VSConstantBufferLayout));
-	framework->md3dContext->Unmap(VSConstantBuffer, 0);
+	SEContext->Unmap(VSConstantBuffer, 0);
 
 	/*ZeroMemory(&mappedSubresource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-	framework->md3dContext->Map(PSConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+	SEContext->Map(PSConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 	memcpy(mappedSubresource.pData, &PSLocalConstantCopy, sizeof(PSConstantBufferLayout));
-	framework->md3dContext->Unmap(PSConstantBuffer, 0);*/
+	SEContext->Unmap(PSConstantBuffer, 0);*/
 
 	// Bind all shader constant for this pass
-	framework->md3dContext->VSSetConstantBuffers(0, 1, &VSConstantBuffer);
-	framework->md3dContext->PSSetConstantBuffers(0, 1, &PSConstantBuffer);
+	SEContext->VSSetConstantBuffers(0, 1, &VSConstantBuffer);
+	SEContext->PSSetConstantBuffers(0, 1, &PSConstantBuffer);
 }

@@ -1,52 +1,83 @@
 #include "states.h"
-#include "d3dApp.h"
-
 #include "framework.h"
+
+SERenderStates::SERenderStates() :
+	standard(nullptr),
+	wireframe(nullptr),
+	noFaceCulling(nullptr),
+	saved(SE_RENDER_DEFAULT) {
+}
+
 
 void SERenderStates::Set(SERenderMode mode = SE_RENDER_DEFAULT) {
 	switch (mode) {
 	case SE_RENDER_DEFAULT:
-		framework->md3dContext->RSSetState(standard);
+		saved = SE_Mode;
+		SE_Mode = mode;
+		SEContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		SEContext->RSSetState(standard);
 		break;
 	case SE_RENDER_WIREFRAME:
-		framework->md3dContext->RSSetState(wireframe);
+		saved = SE_Mode;
+		SE_Mode = mode;
+		SEContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		SEContext->RSSetState(wireframe);
 		break;
 	case SE_RENDER_DISABLE_FACE_CULLING:
-		framework->md3dContext->RSSetState(noFaceCulling);
+		saved = SE_Mode;
+		SE_Mode = mode;
+		SEContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		SEContext->RSSetState(noFaceCulling);
+		break;
+	case SE_RENDER_DISPLAY_BONES:
+		saved = SE_Mode;
+		SE_Mode = mode;
+		SEContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+		SEContext->RSSetState(xrayBones);
+		break;
+	case SE_RENDER_PREPARE_DISPLAY_BONES:
+		saved = SE_Mode;
+		SE_Mode = mode;
+		SEContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		break;
 	default:
-		framework->md3dContext->RSSetState(standard);
+		SEContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		SEContext->RSSetState(standard);
 		break;
 	}
 }
 
+void SERenderStates::Restore() {
+	Set(saved);
+}
+
 void SERenderStates::Init() {
-	D3D11_RASTERIZER_DESC rd_standard;
-	ZeroMemory(&rd_standard, sizeof(D3D11_RASTERIZER_DESC));
-	rd_standard.CullMode = D3D11_CULL_BACK;
-	rd_standard.FillMode = D3D11_FILL_SOLID;
-	rd_standard.FrontCounterClockwise = false;
-	rd_standard.DepthClipEnable = true;
+	D3D11_RASTERIZER_DESC rd;
+	ZeroMemory(&rd, sizeof(D3D11_RASTERIZER_DESC));
 
-	framework->md3dDevice->CreateRasterizerState(&rd_standard, &standard);
+	rd.CullMode = D3D11_CULL_BACK;
+	rd.FillMode = D3D11_FILL_SOLID;
+	rd.FrontCounterClockwise = false;
+	rd.DepthClipEnable = true;
+	SEDevice->CreateRasterizerState(&rd, &standard);
 
-	D3D11_RASTERIZER_DESC rd_wireframe;
-	ZeroMemory(&rd_wireframe, sizeof(D3D11_RASTERIZER_DESC));
-	rd_wireframe.CullMode = D3D11_CULL_NONE;
-	rd_wireframe.FillMode = D3D11_FILL_WIREFRAME;
-	rd_wireframe.FrontCounterClockwise = false;
-	rd_wireframe.DepthClipEnable = true;
+	rd.CullMode = D3D11_CULL_NONE;
+	rd.FillMode = D3D11_FILL_WIREFRAME;
+	rd.FrontCounterClockwise = false;
+	rd.DepthClipEnable = true;
+	SEDevice->CreateRasterizerState(&rd, &wireframe);
 
-	framework->md3dDevice->CreateRasterizerState(&rd_wireframe, &wireframe);
+	rd.CullMode = D3D11_CULL_NONE;
+	rd.FillMode = D3D11_FILL_SOLID;
+	rd.FrontCounterClockwise = false;
+	rd.DepthClipEnable = true;
+	SEDevice->CreateRasterizerState(&rd, &noFaceCulling);
 
-	D3D11_RASTERIZER_DESC rd_noFaceCulling;
-	ZeroMemory(&rd_noFaceCulling, sizeof(D3D11_RASTERIZER_DESC));
-	rd_noFaceCulling.CullMode = D3D11_CULL_NONE;
-	rd_noFaceCulling.FillMode = D3D11_FILL_SOLID;
-	rd_noFaceCulling.FrontCounterClockwise = false;
-	rd_noFaceCulling.DepthClipEnable = true;
-
-	framework->md3dDevice->CreateRasterizerState(&rd_noFaceCulling, &noFaceCulling);
+	rd.CullMode = D3D11_CULL_NONE;
+	rd.FillMode = D3D11_FILL_WIREFRAME;
+	rd.FrontCounterClockwise = false;
+	rd.DepthClipEnable = false;
+	SEDevice->CreateRasterizerState(&rd, &xrayBones);
 
 	Set();
 }

@@ -8,16 +8,16 @@ enum SERenderMode;
 class SERenderStates
 {
 public:
-	SERenderStates(D3DApp *_framework) :
-		framework(_framework), 
-		standard(nullptr),
-		wireframe(nullptr){}
+	SERenderStates();
 
 	void Init();
 	void Set(SERenderMode mode);
+	void Restore();
 private:
-	D3DApp *framework;
+	SERenderMode saved;
+
 	ID3D11RasterizerState *standard;
 	ID3D11RasterizerState *wireframe;
 	ID3D11RasterizerState *noFaceCulling;
+	ID3D11RasterizerState *xrayBones;
 };

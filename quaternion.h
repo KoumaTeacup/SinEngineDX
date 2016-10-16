@@ -40,6 +40,7 @@ public:
 	DirectX::XMVECTOR get() const;
 
 	// unary operation
+	SEQuaternion& normalize();
 	SEQuaternion conj() const;
 	float norm() const;
 	SEQuaternion inverse() const;
@@ -56,6 +57,9 @@ public:
 	DirectX::XMVECTOR toEuler() const;
 	static SEQuaternion fromMatrix(DirectX::CXMMATRIX matrix);
 	static SEQuaternion fromEuler(DirectX::FXMVECTOR euler);
+	static SEQuaternion rotationFromUnitX(DirectX::FXMVECTOR vector);
+	static SEQuaternion rotationFromUnitY(DirectX::FXMVECTOR vector);
+	static SEQuaternion rotationFromUnitZ(DirectX::FXMVECTOR vector);
 	
 private:
 	float s;

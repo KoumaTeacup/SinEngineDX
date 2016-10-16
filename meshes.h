@@ -2,13 +2,16 @@
 
 #include "VAO.h"
 
+namespace SE_Internal_Mesh
+{
+
 const float sin30 = sinf(3.14159265f / 6.0f);
 const float cos30 = cosf(3.14159265f / 6.0f);
 
 // Triangle
 const int triangleVCount = 3;
 const VertexData triangleV[3] = {
-	VertexData(XMFLOAT3(-1.0f, -1.0f, 0.0f)), 
+	VertexData(XMFLOAT3(-1.0f, -1.0f, 0.0f)),
 	VertexData(XMFLOAT3(0.0f, 1.0f, 1.0f)),
 	VertexData(XMFLOAT3(1.0f, -1.0f, 0.0f))
 };
@@ -46,18 +49,16 @@ const int boxI[36] = {
 // Bone Mesh
 const int boneMeshVCount = 5;
 const VertexData boneMeshV[5] = {
-	VertexData(XMFLOAT3(-1.0f, 0.0f, -1.0f)),	// 0
-	VertexData(XMFLOAT3(-1.0f, 0.0f, 1.0f)),	// 1
-	VertexData(XMFLOAT3(1.0f, 0.0f, -1.0f)),	// 2
-	VertexData(XMFLOAT3(1.0f, 0.0f, 1.0f)),		// 3
-	VertexData(XMFLOAT3(0.0f, 1.0f, 0.0f)),		// 4
+	VertexData(XMFLOAT3(0.0f, 0.7f, -0.7f), XMFLOAT3(1.0f, 1.0f, 1.0f)),	// 0
+	VertexData(XMFLOAT3(0.0f, -0.7f, -0.7f), XMFLOAT3(1.0f, 1.0f, 1.0f)),	// 1
+	VertexData(XMFLOAT3(0.0f, 0.7f, 0.7f), XMFLOAT3(1.0f, 1.0f, 1.0f)),	// 2
+	VertexData(XMFLOAT3(0.0f, -0.7f, 0.7f), XMFLOAT3(1.0f, 1.0f, 1.0f)),	// 3
+	VertexData(XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f)),		// 4
 };
-const int boneMeshICount = 18;
-const int boneMeshI[18] = {
+const int boneMeshICount = 12;
+const int boneMeshI[12] = {
 	// sides
-	0,4,2,2,4,3,3,4,1,1,4,0,
-	// bottom
-	1,0,2,1,2,3
+	0,4,1,1,4,3,3,4,2,2,4,0,
 };
 
 // Joint Mesh
@@ -104,3 +105,5 @@ const int jointMeshI[40] = {
 	// z-plane
 	1,13,14,15,23,24,4,25,26,20,27,28,10,29,30,15
 };
+
+}

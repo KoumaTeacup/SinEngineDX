@@ -1,8 +1,14 @@
 #include "VAO.h"
 #include "d3dApp.h"
 
-SEVAO::SEVAO(D3DApp *_framework, const UINT numVertex, const VertexData *meshData, const UINT numIndex, const int *indexData) :
-	framework(_framework), 
+SEVAO::SEVAO() :
+	buffer(nullptr),
+	ibuffer(nullptr),
+	hasIndex(false),
+	drawCount(0) {
+}
+
+SEVAO::SEVAO(const UINT numVertex, const VertexData *meshData, const UINT numIndex, const int *indexData) :
 	buffer(nullptr), 
 	ibuffer(nullptr),
 	hasIndex(false),
@@ -35,7 +41,7 @@ void SEVAO::Load(const UINT numVertex, const VertexData *meshData, const UINT nu
 	D3D11_SUBRESOURCE_DATA sd;
 	sd.pSysMem = meshData;
 
-	framework->md3dDevice->CreateBuffer(&bd, &sd, &buffer);
+	SEDevice->CreateBuffer(&bd, &sd, &buffer);
 
 	if (numIndex) {
 		hasIndex = true;
@@ -50,23 +56,23 @@ void SEVAO::Load(const UINT numVertex, const VertexData *meshData, const UINT nu
 		D3D11_SUBRESOURCE_DATA isd;
 		isd.pSysMem = indexData;
 
-		framework->md3dDevice->CreateBuffer(&ibd, &isd, &ibuffer);
+		SEDevice->CreateBuffer(&ibd, &isd, &ibuffer);
 
 		drawCount = numIndex;
 	}
 }
-void SEVAO::Bind()
+void SEVAO::Bind() const
 {
 	UINT stride = sizeof(VertexData);
 	UINT offset = 0;
-	framework->md3dContext->IASetVertexBuffers(0, 1, &buffer, &stride, &offset);
-	if(hasIndex) framework->md3dContext->IASetIndexBuffer(ibuffer, DXGI_FORMAT_R32_UINT, 0);
+	SEContext->IASetVertexBuffers(0, 1, &buffer, &stride, &offset);
+	if(hasIndex) SEContext->IASetIndexBuffer(ibuffer, DXGI_FORMAT_R32_UINT, 0);
 }
 
-void SEVAO::Draw()
+void SEVAO::Draw() const
 {
 	if (hasIndex)
-		framework->md3dContext->DrawIndexed(drawCount, 0, 0);
+		SEContext->DrawIndexed(drawCount, 0, 0);
 	else
-		framework->md3dContext->Draw(drawCount, 0);
+		SEContext->Draw(drawCount, 0);
 }

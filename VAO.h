@@ -43,16 +43,16 @@ struct VertexData {
 class SEVAO
 {
 public:
-	SEVAO(D3DApp *_framework, const UINT numVertex, const VertexData *meshData, const UINT numIndex = 0, const int *indexData = nullptr);
+	SEVAO();
+	SEVAO(const UINT numVertex, const VertexData *meshData, const UINT numIndex = 0, const int *indexData = nullptr);
 	~SEVAO();
 
 	void Load(const UINT numVertex, const VertexData *meshData, const UINT numIndex = 0, const int *indexData = nullptr);
-	void Bind();
-	void Draw();
+	void Bind() const;
+	void Draw() const;
 
 private:
 	bool hasIndex;
-	D3DApp * framework;
 	UINT drawCount;
 	ID3D11Buffer *buffer;
 	ID3D11Buffer *ibuffer;

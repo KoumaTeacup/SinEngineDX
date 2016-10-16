@@ -11,6 +11,9 @@
 #ifndef D3DAPP_H
 #define D3DAPP_H
 
+#define SEDevice  D3DApp::getDevice()
+#define SEContext D3DApp::getContext()
+
 #include "d3dUtil.h"
 #include "GameTimer.h"
 #include "VAO.h"
@@ -47,6 +50,8 @@ public:
 	virtual void OnMouseUp(WPARAM btnState, int x, int y)  { }
 	virtual void OnMouseMove(WPARAM btnState, int x, int y){ }
 
+	static ID3D11Device* getDevice() { return md3dDevice; }
+	static ID3D11DeviceContext* getContext() { return md3dContext; }
 protected:
 	bool InitMainWindow();
 	bool InitDirect3D();
@@ -65,8 +70,6 @@ protected:
 
 	GameTimer mTimer;
 
-	ID3D11Device* md3dDevice;
-	ID3D11DeviceContext* md3dContext;
 	IDXGISwapChain* mSwapChain;
 	ID3D11Texture2D* mDepthStencilBuffer;
 	ID3D11RenderTargetView* mRenderTargetView;
@@ -79,6 +82,9 @@ protected:
 	int mClientWidth;
 	int mClientHeight;
 	bool mEnable4xMsaa;
+
+	static ID3D11Device* md3dDevice;
+	static ID3D11DeviceContext* md3dContext;
 };
 
 #endif // D3DAPP_H

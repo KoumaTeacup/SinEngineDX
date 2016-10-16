@@ -15,12 +15,13 @@ public:
 	~SEScene();
 
 	void loadSkeleton(FbxNode *skeletonNode, SEBone * parent, FbxScene *scene);
-	void drawSkeleton();
+	void Draw();
+
+	void Tick();
 
 private:
 
+	FbxTime::EMode timeMode;
 	std::string sceneName;
-
 	std::vector<SEBone *> skeletons;
-	std::vector<SEAnimation *> SEAnimation;
 };

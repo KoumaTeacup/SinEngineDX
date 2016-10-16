@@ -22,6 +22,9 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return gd3dApp->MsgProc(hwnd, msg, wParam, lParam);
 }
 
+ID3D11Device* D3DApp::md3dDevice = nullptr;
+ID3D11DeviceContext* D3DApp::md3dContext = nullptr;
+
 D3DApp::D3DApp(HINSTANCE hInstance)
 :	mhAppInst(hInstance),
 	mMainWndCaption(L"The Grand 3D Graphics Demo By Shin Chen"),
@@ -36,8 +39,6 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mResizing(false),
 	m4xMsaaQuality(0),
  
-	md3dDevice(0),
-	md3dContext(0),
 	mSwapChain(0),
 	mDepthStencilBuffer(0),
 	mRenderTargetView(0),

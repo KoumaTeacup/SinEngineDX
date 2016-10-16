@@ -4,7 +4,7 @@
 
 using namespace DirectX;
 
-SEQuaternion::SEQuaternion() :s(1.0f) {
+SEQuaternion::SEQuaternion() :s(1.0f), v(0.0f, 0.0f, 0.0f) {
 }
 
 SEQuaternion::SEQuaternion(const SEQuaternion & rhs) : s(rhs.s), v(rhs.v) {
@@ -42,7 +42,7 @@ SEQuaternion & SEQuaternion::operator+=(const SEQuaternion & rhs) {
 	XMVECTOR v1 = XMLoadFloat3(&v);
 	XMVECTOR v2 = XMLoadFloat3(&rhs.v);
 
-	s += s;
+	s += rhs.s;
 	v1 += v2;
 	XMStoreFloat3(&v, v1);
 
@@ -95,6 +95,14 @@ SEQuaternion & SEQuaternion::operator/=(float c) {
 	return *this *= 1.0f / c;
 }
 
+SEQuaternion & SEQuaternion::normalize() {
+	float norm = sqrt(this->norm());
+	s /= norm;
+	XMVECTOR v3 = XMLoadFloat3(&v) / norm;
+	XMStoreFloat3(&v, v3);
+	return *this;
+}
+
 SEQuaternion SEQuaternion::conj() const {
 	XMVECTOR v1 = XMLoadFloat3(&v);
 	SEQuaternion result;
@@ -135,6 +143,7 @@ float SEQuaternion::dot(const SEQuaternion & rhs) const {
 }
 
 XMVECTOR SEQuaternion::rotate(FXMVECTOR element) const {
+	XMVector3Normalize(element);
 	SEQuaternion mid(0.0f, element);
 	return ((*this) * mid * this->inverse()).getImagine();
 }
@@ -208,18 +217,40 @@ SEQuaternion SEQuaternion::fromMatrix(CXMMATRIX matrix) {
 SEQuaternion SEQuaternion::fromEuler(DirectX::FXMVECTOR euler) {
 	XMFLOAT3 f3;
 	XMStoreFloat3(&f3, euler * 0.5f);
-	double t0 = cosf(f3.z);
-	double t1 = sinf(f3.z);
-	double t2 = cosf(f3.x);
-	double t3 = sinf(f3.x);
-	double t4 = cosf(f3.y);
-	double t5 = sinf(f3.y);
+	
+	float cx = cosf(f3.x);
+	float sx = sinf(f3.x);
+	float cy = cosf(f3.y);
+	float sy = sinf(f3.y);
+	float cz = cosf(f3.z);
+	float sz = sinf(f3.z);
 
 	return SEQuaternion(
-		t0 * t2 * t4 + t1 * t3 * t5,
-		t0 * t3 * t4 - t1 * t2 * t5,
-		t0 * t2 * t5 + t1 * t3 * t4,
-		t1 * t2 * t4 - t0 * t3 * t5);
+		cx*cy*cz - sx*sy*sz,
+		sx*cy*cz + cx*sy*sz,
+		cx*sy*cz + sx*cy*sz,
+		sx*sy*cz + cx*cy*sz);
+}
+
+SEQuaternion SEQuaternion::rotationFromUnitX(FXMVECTOR vector) {
+	XMFLOAT3 f3;
+	XMStoreFloat3(&f3, XMVector3Normalize(vector));
+	float m = sqrtf(f3.x * 2.0f + 2.0f);
+	return SEQuaternion(m / 2.0f, XMLoadFloat3(&XMFLOAT3(0.0f, -f3.z / m, f3.y / m))).normalize();
+}
+
+SEQuaternion SEQuaternion::rotationFromUnitY(FXMVECTOR vector) {
+	XMFLOAT3 f3;
+	XMStoreFloat3(&f3, XMVector3Normalize(vector));
+	float m = sqrtf(f3.y * 2.0f + 2.0f);
+	return SEQuaternion(m / 2.0f, XMLoadFloat3(&XMFLOAT3(f3.z / m, 0.0f, f3.x / m))).normalize();
+}
+
+SEQuaternion SEQuaternion::rotationFromUnitZ(FXMVECTOR vector) {
+	XMFLOAT3 f3;
+	XMStoreFloat3(&f3, XMVector3Normalize(vector));
+	float m = sqrtf(f3.z * 2.0f + 2.0f);
+	return SEQuaternion(m / 2.0f, XMLoadFloat3(&XMFLOAT3(-f3.y / m, f3.x / m, 0.0f))).normalize();
 }
 
 SEQuaternion operator*(float c, SEQuaternion q) {
