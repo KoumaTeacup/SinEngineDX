@@ -18,7 +18,7 @@ SERenderStates Framework::renderState = SERenderStates();
 
 Framework::Framework(HINSTANCE hInstance)
 	: D3DApp(hInstance),
-	changeMode(false),
+	paused(false),
 	mouseX(-1),
 	mouseY(-1),
 	cameraPhi(XM_PI * 0.4f),
@@ -75,7 +75,7 @@ void Framework::UpdateScene(float dt) {
 	currentVP = XMMatrixIdentity() * V * P;
 
 	// Tick bone animations
-	for (auto i : scenes) i->Tick();
+	for (auto i : scenes) if(!paused) i->Tick();
 }
 
 void Framework::DrawScene() {
@@ -120,6 +120,14 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		switch (wParam) {
 		case 0x46: // F-Key
 			cameraFocus = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			break;
+		case VK_SPACE:
+			if (paused) {
+				paused = false;
+			}
+			else {
+				paused = true;
+			}
 			break;
 		case VK_F2:
 			renderState.Set(SE_RENDER_WIREFRAME);

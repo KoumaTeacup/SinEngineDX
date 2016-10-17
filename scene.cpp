@@ -59,9 +59,9 @@ void SEScene::loadSkeleton(FbxNode * skeletonNode, SEBone *parent, FbxScene *sce
 	// local transform
 	FbxVector4 fbxTrans = skeletonNode->LclTranslation.Get();
 	FbxVector4 fbxRot = skeletonNode->LclRotation.Get();
-	fbxRot[0] = XMConvertToRadians(fbxRot[0]);
-	fbxRot[1] = XMConvertToRadians(fbxRot[1]);
-	fbxRot[2] = XMConvertToRadians(fbxRot[2]);
+	fbxRot[0] = fbxRot[0] / 180.0f * XM_PI;
+	fbxRot[1] = fbxRot[1] / 180.0f * XM_PI;
+	fbxRot[2] = fbxRot[2] / 180.0f * XM_PI;
 	FbxVector4 fbxScl = skeletonNode->LclScaling.Get();
 
 	DirectX::XMFLOAT3 localTranslate((float)fbxTrans[0], (float)fbxTrans[1], (float)fbxTrans[2]);
@@ -70,9 +70,9 @@ void SEScene::loadSkeleton(FbxNode * skeletonNode, SEBone *parent, FbxScene *sce
 
 	// joint orient
 	FbxVector4 fbxRotate = skeletonNode->GetPreRotation(FbxNode::eSourcePivot);
-	fbxRotate[0] = XMConvertToRadians(fbxRotate[0]);
-	fbxRotate[1] = XMConvertToRadians(fbxRotate[1]);
-	fbxRotate[2] = XMConvertToRadians(fbxRotate[2]);
+	fbxRotate[0] = fbxRotate[0] / 180.0f * XM_PI;
+	fbxRotate[1] = fbxRotate[1] / 180.0f * XM_PI;
+	fbxRotate[2] = fbxRotate[2] / 180.0f * XM_PI;
 	XMVECTOR orientVec = XMVectorSet((float)fbxRotate[0], (float)fbxRotate[1], (float)fbxRotate[2], 0.0f);
 	SEQuaternion boneOrient = SEQuaternion::fromEuler(XMVectorSet((float)fbxRotate[0], (float)fbxRotate[1], (float)fbxRotate[2], 0.0f));
 
@@ -129,4 +129,12 @@ void SEScene::Draw() {
 
 void SEScene::Tick() {
 	for (auto i : skeletons) i->Tick();
+}
+
+void SEScene::Pause() {
+	for (auto i : skeletons) i->Pause();
+}
+
+void SEScene::Resume() {
+	for (auto i : skeletons) i->Resume();
 }

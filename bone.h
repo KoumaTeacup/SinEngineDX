@@ -13,6 +13,8 @@ public:
 	SEBone() {}
 	~SEBone();
 
+	void test();
+
 	void loadBone(std::string _name, DirectX::XMFLOAT3 trans, DirectX::XMFLOAT3 rot, DirectX::XMFLOAT3 scl, const SEQuaternion &_orient);
 	void addChild(SEBone *child);
 	void drawAll(SEBone *parent);
@@ -21,6 +23,8 @@ public:
 	static void InitBoneMesh();
 	void Reset();
 	void Tick();
+	void Resume();
+	void Pause();
 
 	const XMFLOAT3 &getLocalTranslation() { return localTranslation; }
 	const XMFLOAT3 &getLocalRotation() { return localRotation; }

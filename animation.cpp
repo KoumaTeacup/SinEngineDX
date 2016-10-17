@@ -29,6 +29,27 @@ void SEAnimation::Reset() {
 
 	if (keyFrames.size() < 1) return;
 	currentKey = keyFrames.begin();
+	stepTime = 0.0f;
+	currentStep = currentKey->second.getVQS();
+
+	auto next = currentKey;
+	if (++next == keyFrames.end()) {
+		// only one key frame, no interpolation needed
+		XMStoreFloat3(&stepV, XMVectorZero());
+		stepQ = SEQuaternion();
+		XMStoreFloat3(&stepS, XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+	else {
+		// recalculate frame steps
+		SEVQS vqs0 = currentKey->second.getVQS();
+		SEVQS vqs1 = next->second.getVQS();
+
+		XMStoreFloat3(&stepV, (vqs1.getV() - vqs0.getV()) / SE_NUM_INTERPOLATION_STEP);
+		stepQ = SEQuaternion::incrementalStep(vqs0.getQ(), vqs1.getQ(), SE_NUM_INTERPOLATION_STEP);
+		XMStoreFloat3(&stepS, XMVectorSet(powf(vqs1.getS() / vqs0.getS(), 1.0f / SE_NUM_INTERPOLATION_STEP), 0.0f, 0.0f, 0.0f));
+
+		currentStep = currentKey->second.getVQS();
+	}
 }
 
 void SEAnimation::Pause() {
@@ -36,7 +57,7 @@ void SEAnimation::Pause() {
 }
 
 void SEAnimation::Restart() {
-	timer.Start();
+	//timer.Start();
 }
 
 void SEAnimation::Tick() {
@@ -45,9 +66,26 @@ void SEAnimation::Tick() {
 	if (keyFrames.size() < 1) return;
 	auto next = currentKey;
 	if (++next == keyFrames.end()) Reset();
-	//if (timer.TotalTime() * SE_ANIMATION_FPS + 1.0f > 70.0f) Reset();
-	else if (timer.TotalTime() * SE_ANIMATION_FPS + 1.0f > next->first) {
+	else if (timer.TotalTime() * SE_ANIMATION_FPS > next->first) {
 		currentKey = next;
+		stepTime = 0.0f;
+		if (++next == keyFrames.end()) {
+			// only one key frame, no interpolation needed
+			XMStoreFloat3(&stepV, XMVectorZero());
+			stepQ = SEQuaternion();
+			XMStoreFloat3(&stepS, XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
+		}
+		else {
+			// recalculate frame steps
+			SEVQS vqs0 = currentKey->second.getVQS();
+			SEVQS vqs1 = next->second.getVQS();
+
+			XMStoreFloat3(&stepV, (vqs1.getV() - vqs0.getV()) / SE_NUM_INTERPOLATION_STEP);
+			stepQ = SEQuaternion::incrementalStep(vqs0.getQ(), vqs1.getQ(), SE_NUM_INTERPOLATION_STEP);
+			XMStoreFloat3(&stepS, XMVectorSet(powf(vqs1.getS() / vqs0.getS(), 1.0f / SE_NUM_INTERPOLATION_STEP), 0.0f, 0.0f, 0.0f));
+
+			currentStep = currentKey->second.getVQS();
+		}
 	}
 }
 
@@ -57,7 +95,7 @@ void SEAnimation::insert(FbxAnimCurve * curve, elementType eType, FbxTime::EMode
 		for (int iKey = 0; iKey < keyCount; iKey++) {
 			SEKeyFrame keyFrame(eType, bone);
 			int frameCount;
-			frameCount = curve->KeyGetTime(iKey).GetFrameCount(timeMode);
+			frameCount = int(curve->KeyGetTime(iKey).GetFrameCount(timeMode));
 			keyFrame.setValue(eType, curve->KeyGetValue(iKey));
 			FbxAnimCurveDef::EInterpolationType lerpType = curve->KeyGetInterpolation(iKey);
 			switch (lerpType) {
@@ -81,11 +119,60 @@ SEVQS SEAnimation::getTransformLerped() {
 	if (keyFrames.size() > 0) {
 		auto next = currentKey;
 		if (++next != keyFrames.end()) {
-			float currentFrame = timer.TotalTime() * SE_ANIMATION_FPS + 1.0f;
+			float currentFrame = timer.TotalTime() * SE_ANIMATION_FPS;
 			float t = (currentFrame - currentKey->first) / (next->first - currentKey->first);
 			if (t > 1.0f) t = 1.0f;
 			if (t < 0.0f) t = 0.0f;
+			//t = 0.0f;
 			return currentKey->second.getVQS() *(1- t) + next->second.getVQS() * t;
+		}
+		return currentKey->second.getVQS();
+	}
+	else return bone->getVQS();
+}
+
+SEVQS SEAnimation::getTransformSLerped() {
+	if (keyFrames.size() > 0) {
+		auto next = currentKey;
+		if (++next != keyFrames.end()) {
+			float currentFrame = timer.TotalTime() * SE_ANIMATION_FPS;
+			float t = (currentFrame - currentKey->first) / (next->first - currentKey->first);
+			if (t > 1.0f) t = 1.0f;
+			if (t < 0.0f) t = 0.0f;
+			SEVQS vqs1 = currentKey->second.getVQS();
+			SEVQS vqs2 = next->second.getVQS();
+			XMVECTOR v1 = vqs1.getV();
+			XMVECTOR v2 = vqs2.getV();
+			SEQuaternion q1 = vqs1.getQ();
+			SEQuaternion q2 = vqs2.getQ();
+			float s1 = vqs1.getS();
+			float s2 = vqs2.getS();
+			float dot = q1.dot(q2);
+			if (fabsf(dot - 1.0f) < 0.000001f) return vqs1;
+			float alpha = acosf(q1.dot(q2));
+			return SEVQS(
+				v1 * (1 - t) + v2*t,
+				(q1 *sinf(alpha*(1.0f - t)) + q2 * sinf(alpha * t)) / sinf(alpha),
+				s1 * pow(s2/s1, t)
+			);
+		}
+		return currentKey->second.getVQS();
+	}
+	else return bone->getVQS();
+}
+
+SEVQS SEAnimation::getTransformiSLerped() {
+	if (keyFrames.size() > 0) {
+		auto next = currentKey;
+		if (++next != keyFrames.end()) {
+			float currentFrame = timer.TotalTime() * SE_ANIMATION_FPS;
+
+			if (currentFrame > stepTime) {
+				stepTime += ((next->first - currentKey->first) / SE_NUM_INTERPOLATION_STEP);
+				currentStep.increment(XMLoadFloat3(&stepV), stepQ, stepS.x);
+				return currentStep;
+			}
+			else return currentStep;
 		}
 		return currentKey->second.getVQS();
 	}

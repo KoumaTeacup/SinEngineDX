@@ -60,6 +60,9 @@ public:
 	static SEQuaternion rotationFromUnitX(DirectX::FXMVECTOR vector);
 	static SEQuaternion rotationFromUnitY(DirectX::FXMVECTOR vector);
 	static SEQuaternion rotationFromUnitZ(DirectX::FXMVECTOR vector);
+
+	// interpolation
+	static SEQuaternion incrementalStep(const SEQuaternion& q0, const SEQuaternion &qn, float step);
 	
 private:
 	float s;

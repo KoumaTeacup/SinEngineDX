@@ -9,7 +9,8 @@
 
 class SEBone;
 
-#define SE_ANIMATION_FPS 30.0f
+#define SE_ANIMATION_FPS 6.0f
+#define SE_NUM_INTERPOLATION_STEP 60.0f
 
 enum tangentType
 {
@@ -89,8 +90,15 @@ public:
 	void insert(FbxAnimCurve *curve, elementType eType, FbxTime::EMode timeMode);
 
 	SEVQS getTransformLerped();
+	SEVQS getTransformSLerped();
+	SEVQS getTransformiSLerped();
 
 private:
+	float stepTime;
+	DirectX::XMFLOAT3 stepV;
+	SEQuaternion stepQ;
+	DirectX::XMFLOAT3 stepS;
+	SEVQS currentStep;
 	SEBone *bone;
 	std::map<int, SEKeyFrame>::iterator currentKey;
 	GameTimer timer;

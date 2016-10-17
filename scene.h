@@ -18,6 +18,8 @@ public:
 	void Draw();
 
 	void Tick();
+	void Pause();
+	void Resume();
 
 private:
 

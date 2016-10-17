@@ -95,7 +95,7 @@ SEVQS & SEVQS::translateBy(FXMVECTOR vector) {
 }
 
 SEVQS & SEVQS::rotateBy(FXMVECTOR angle) {
-	q = SEQuaternion::fromEuler(angle).normalize();
+	q = SEQuaternion::fromEuler(angle);
 	return *this;
 }
 
@@ -118,4 +118,11 @@ DirectX::XMMATRIX SEVQS::toMatrixWithScale(DirectX::FXMVECTOR scale) const {
 		XMVectorZero(),
 		q.get(),
 		XMLoadFloat3(&v));
+}
+
+SEVQS & SEVQS::increment(DirectX::FXMVECTOR _v, SEQuaternion _q, float _s) {
+	XMStoreFloat3(&v, XMLoadFloat3(&v) + _v);
+	q = _q * q;
+	s = _s * s;
+	return *this;
 }

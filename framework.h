@@ -51,7 +51,7 @@ private:
 	static ID3D11Device *gDivece;
 	static ID3D11DeviceContext *gContext;
 
-	bool changeMode;
+	bool paused;
 
 	SEFBX fbxManager;
 	std::vector<SEScene*> scenes;
@@ -63,6 +63,5 @@ private:
 	FLOAT cameraTheta;
 	FLOAT cameraRadius;
 	XMFLOAT3 cameraFocus;
-
 
 };

@@ -5,6 +5,7 @@
 class SEVQS
 {
 public:
+	// copy ctor
 	SEVQS();
 	// copy ctor
 	SEVQS(const SEVQS &rhs);
@@ -42,6 +43,9 @@ public:
 	// conversion
 	DirectX::XMMATRIX toMatrix() const;
 	DirectX::XMMATRIX toMatrixWithScale(DirectX::FXMVECTOR scale) const;
+
+	// Interpolation
+	SEVQS &increment(DirectX::FXMVECTOR v, SEQuaternion q, float s);
 
 	// Getter
 	DirectX::XMVECTOR getV() const {	return XMLoadFloat3(&v); }

@@ -45,7 +45,7 @@ void SEBone::drawAll(SEBone *parent) {
 	SEVQS parentTransform = parent ? parent->transFinal : SEVQS();
 
 	// Assuming 1 animation
-	transAnim = animations[0]->getTransformLerped();
+	transAnim = animations[0]->getTransformiSLerped();
 
 	// Store local transformation
 	transFinal = transAnim * transOrient* parentTransform;
@@ -74,7 +74,6 @@ void SEBone::drawAll(SEBone *parent) {
 				XMMatrixScaling(f3.x - SE_BONE_RADIUS * 2.0f, SE_BONE_RADIUS, SE_BONE_RADIUS)
 				* XMMatrixTranslation(SE_BONE_RADIUS, 0.0f, 0.0f)
 				* XMMatrixRotationQuaternion(boneOrient.get())
-				//* XMMatrixRotationQuaternion(parent->transFinal.getQ().get())
 				* XMMatrixTranslationFromVector(parent->transFinal.getV())
 				* SE_VP
 			)
@@ -105,4 +104,14 @@ void SEBone::Reset() {
 void SEBone::Tick() {
 	for (auto i : animations) i->Tick();
 	for (auto i : children)i->Tick();
+}
+
+void SEBone::Resume() {
+	for (auto i : animations) i->Restart();
+	for (auto i : children) i->Resume();
+}
+
+void SEBone::Pause() {
+	for (auto i : animations) i->Pause();
+	for (auto i : children) i->Pause();
 }

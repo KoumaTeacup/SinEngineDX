@@ -96,7 +96,7 @@ SEQuaternion & SEQuaternion::operator/=(float c) {
 }
 
 SEQuaternion & SEQuaternion::normalize() {
-	float norm = sqrt(this->norm());
+	float norm = sqrtf(this->norm());
 	s /= norm;
 	XMVECTOR v3 = XMLoadFloat3(&v) / norm;
 	XMStoreFloat3(&v, v3);
@@ -140,6 +140,17 @@ float SEQuaternion::dot(const SEQuaternion & rhs) const {
 	XMFLOAT3 f3;
 	XMStoreFloat3(&f3, v1);
 	return s * rhs.s + f3.x;
+}
+
+SEQuaternion SEQuaternion::incrementalStep(const SEQuaternion & q0, const SEQuaternion & qn, float step) {
+	float alpha = acosf(q0.dot(qn));
+	float beta = alpha / step;
+	XMVECTOR v0 = XMLoadFloat3(&q0.v);
+	XMVECTOR vn = XMLoadFloat3(&qn.v);
+	XMVECTOR u;
+	if (fabsf(alpha) < 0.00001f) u = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	else u = (q0.s*v0 - qn.s*v0 + XMVector3Cross(v0, vn)) / sinf(alpha);
+	return SEQuaternion(cosf(beta), sinf(beta) * u);
 }
 
 XMVECTOR SEQuaternion::rotate(FXMVECTOR element) const {
@@ -217,7 +228,7 @@ SEQuaternion SEQuaternion::fromMatrix(CXMMATRIX matrix) {
 SEQuaternion SEQuaternion::fromEuler(DirectX::FXMVECTOR euler) {
 	XMFLOAT3 f3;
 	XMStoreFloat3(&f3, euler * 0.5f);
-	
+
 	float cx = cosf(f3.x);
 	float sx = sinf(f3.x);
 	float cy = cosf(f3.y);
@@ -226,10 +237,10 @@ SEQuaternion SEQuaternion::fromEuler(DirectX::FXMVECTOR euler) {
 	float sz = sinf(f3.z);
 
 	return SEQuaternion(
-		cx*cy*cz - sx*sy*sz,
-		sx*cy*cz + cx*sy*sz,
+		cx*cy*cz + sx*sy*sz,
+		sx*cy*cz - cx*sy*sz,
 		cx*sy*cz + sx*cy*sz,
-		sx*sy*cz + cx*cy*sz);
+		cx*cy*sz - sx*sy*cz);
 }
 
 SEQuaternion SEQuaternion::rotationFromUnitX(FXMVECTOR vector) {
