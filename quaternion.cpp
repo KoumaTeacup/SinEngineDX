@@ -149,7 +149,7 @@ SEQuaternion SEQuaternion::incrementalStep(const SEQuaternion & q0, const SEQuat
 	XMVECTOR vn = XMLoadFloat3(&qn.v);
 	XMVECTOR u;
 	if (fabsf(alpha) < 0.00001f) u = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	else u = (q0.s*v0 - qn.s*v0 + XMVector3Cross(v0, vn)) / sinf(alpha);
+	else u = (q0.s*vn - qn.s*v0 + XMVector3Cross(v0, vn)) / sinf(alpha);
 	return SEQuaternion(cosf(beta), sinf(beta) * u);
 }
 

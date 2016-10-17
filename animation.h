@@ -9,8 +9,8 @@
 
 class SEBone;
 
-#define SE_ANIMATION_FPS 6.0f
-#define SE_NUM_INTERPOLATION_STEP 60.0f
+#define SE_ANIMATION_FPS 24.0f
+#define SE_NUM_INTERPOLATION_STEP 3.0f
 
 enum tangentType
 {
