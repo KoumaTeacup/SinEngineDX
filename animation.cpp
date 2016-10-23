@@ -72,6 +72,7 @@ void SEAnimation::Tick() {
 		if (++next == keyFrames.end()) {
 			// only one key frame, no interpolation needed
 			XMStoreFloat3(&stepV, XMVectorZero());
+			stepQ = SEQuaternion();
 			XMStoreFloat3(&stepS, XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
 		}
 		else {
@@ -166,7 +167,7 @@ SEVQS SEAnimation::getTransformiSLerped() {
 		if (++next != keyFrames.end()) {
 			float currentFrame = timer.TotalTime() * SE_ANIMATION_FPS;
 
-			if (currentFrame > stepTime) {
+			if (currentFrame - currentKey->first > stepTime) {
 				stepTime += ((next->first - currentKey->first) / SE_NUM_INTERPOLATION_STEP);
 				currentStep.increment(XMLoadFloat3(&stepV), stepQ, stepS.x);
 				return currentStep;

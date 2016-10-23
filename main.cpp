@@ -20,7 +20,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	if (!framework.Init())	return 0;
 
 	framework.loadMesh(boxVCount, boxV, boxICount, boxI);
-	framework.loadFBX("fbx/shin_singleBone.fbx");
+	framework.loadFBX("fbx/sylvanas_run_only.fbx");
 
 
 	return framework.Run();

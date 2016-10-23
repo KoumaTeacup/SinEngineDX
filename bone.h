@@ -13,8 +13,6 @@ public:
 	SEBone() {}
 	~SEBone();
 
-	void test();
-
 	void loadBone(std::string _name, DirectX::XMFLOAT3 trans, DirectX::XMFLOAT3 rot, DirectX::XMFLOAT3 scl, const SEQuaternion &_orient);
 	void addChild(SEBone *child);
 	void drawAll(SEBone *parent);

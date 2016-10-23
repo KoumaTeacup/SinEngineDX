@@ -379,8 +379,10 @@ bool D3DApp::InitDirect3D()
 
 	D3D_FEATURE_LEVEL featureLevels[] =
 	{
-		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_11_0, // First check D3D 11 support
+		D3D_FEATURE_LEVEL_10_1, // Second check D3D 10.1 support
+		D3D_FEATURE_LEVEL_10_0, // Next, check D3D 10 support
+		D3D_FEATURE_LEVEL_9_3 // Finally, check D3D 9.3 support
 	};
 
 	HRESULT hr = D3D11CreateDevice(
