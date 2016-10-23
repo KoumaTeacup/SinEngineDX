@@ -72,7 +72,6 @@ void SEAnimation::Tick() {
 		if (++next == keyFrames.end()) {
 			// only one key frame, no interpolation needed
 			XMStoreFloat3(&stepV, XMVectorZero());
-			stepQ = SEQuaternion();
 			XMStoreFloat3(&stepS, XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f));
 		}
 		else {
