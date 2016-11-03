@@ -8,7 +8,9 @@
 #define SE_Mode		Framework::currentMode
 #define SE_State	Framework::renderState
 
-class SEScene;
+class SEAsset;
+
+struct VertexData;
 
 enum SERenderMode
 {
@@ -31,7 +33,7 @@ public:
 	void UpdateScene(float dt);
 	void DrawScene();
 
-	void loadMesh(const UINT num, const VertexData * meshData, const int numIndex = 0, const int *indexData = nullptr);
+	void loadExplicitMesh(const UINT num, const VertexData * meshData, const int numIndex = 0, const int *indexData = nullptr);
 	void loadFBX(const char* filename);
 
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -54,9 +56,11 @@ private:
 	bool paused;
 
 	SEFBX fbxManager;
-	std::vector<SEScene*> scenes;
 
-	std::vector<SEVAO*> meshes;
+	//std::vector<SESkeleton*> skeletons;
+	//std::vector<SEMesh*> meshes;
+
+	std::vector<SEAsset*> assets;
 
 	int mouseX, mouseY;
 	FLOAT cameraPhi;

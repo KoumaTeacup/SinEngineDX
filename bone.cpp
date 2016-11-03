@@ -1,17 +1,17 @@
 #include "bone.h"
 #include "animation.h"
-#include "VAO.h"
+#include "mesh.h"
 #include "framework.h"
 #include "quaternion.h"
 
-#include "meshes.h"
+#include "meshPresets.h"
 
 #define SE_BONE_RADIUS 0.5f
 
 using namespace SE_Internal_Mesh;
 
-SEVAO SEBone::boneMesh = SEVAO();//boneMeshVCount, boneMeshV, boneMeshICount, boneMeshI);
-SEVAO SEBone::jointMesh = SEVAO();// jointMeshVCount, jointMeshV, jointMeshICount, jointMeshI);
+SEMesh SEBone::boneMesh = SEMesh();//boneMeshVCount, boneMeshV, boneMeshICount, boneMeshI);
+SEMesh SEBone::jointMesh = SEMesh();// jointMeshVCount, jointMeshV, jointMeshICount, jointMeshI);
 
 SEBone::~SEBone() {
 	for (auto i : children) {

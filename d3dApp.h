@@ -16,14 +16,14 @@
 
 #include "d3dUtil.h"
 #include "GameTimer.h"
-#include "VAO.h"
+#include "mesh.h"
 #include "shader.h"
 #include "states.h"
 #include <string>
 
 class D3DApp
 {
-	friend SEVAO;
+	friend SEMesh;
 	friend SEShader;
 	friend SERenderStates;
 public:

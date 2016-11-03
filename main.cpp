@@ -1,9 +1,7 @@
 #pragma once
 
 #include "framework.h"
-
-#include "meshes.h"
-#include "quaternion.h"
+#include "meshPresets.h"
 
 using namespace SE_Internal_Mesh;
 
@@ -19,7 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	if (!framework.Init())	return 0;
 
-	framework.loadMesh(boxVCount, boxV, boxICount, boxI);
+	framework.loadExplicitMesh(boxVCount, boxV, boxICount, boxI);
 	framework.loadFBX("fbx/sylvanas_run_only.fbx");
 
 

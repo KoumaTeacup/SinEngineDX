@@ -7,7 +7,9 @@
 //***************************************************************************************
 
 #include "framework.h"
+#include "mesh.h"
 #include "bone.h"
+#include "skeleton.h"
 
 using namespace DirectX;
 
@@ -31,9 +33,9 @@ Framework::Framework(HINSTANCE hInstance)
 }
 
 Framework::~Framework() {
-	for (auto mesh : meshes) {
-		delete mesh;
-	}
+	//for (auto mesh : meshes) delete mesh;
+	//for (auto skeleton : skeletons) delete skeleton;
+	for (auto i : assets) delete i;
 }
 
 bool Framework::Init() {
@@ -75,7 +77,8 @@ void Framework::UpdateScene(float dt) {
 	currentVP = XMMatrixIdentity() * V * P;
 
 	// Tick bone animations
-	for (auto i : scenes) if(!paused) i->Tick();
+	//for (auto i : skeletons) if(!paused) i->Tick();
+	for (auto i : assets) if (!paused) i->Tick();
 }
 
 void Framework::DrawScene() {
@@ -89,27 +92,31 @@ void Framework::DrawScene() {
 
 	currentShader.Bind();
 
-	//if(currentMode != SE_RENDER_PREPARE_DISPLAY_BONES)
-	for (auto mesh : meshes) {
-		currentShader.Draw();
-		mesh->Bind();
-		mesh->Draw();
-	}
-
-	for (auto i : scenes) {
+	for (auto i : assets) {
 		i->Draw();
 	}
 
 	mSwapChain->Present(0, 0);
 }
 
-void Framework::loadMesh(const UINT numVertex, const VertexData * meshData, const int numIndex, const int * indexData) {
-	SEVAO *newMesh = new SEVAO(numVertex, meshData, numIndex, indexData);
-	meshes.push_back(newMesh);
+void Framework::loadExplicitMesh(const UINT numVertex, const VertexData * meshData, const int numIndex, const int * indexData) {
+	SEMesh *newMesh = new SEMesh(numVertex, meshData, numIndex, indexData);
+	newMesh->setAssetName("defaultCube");
+	newMesh->setType(SE_ASSET_MESH);
+	assets.push_back(newMesh);
 }
 
 void Framework::loadFBX(const char * filename) {
-	scenes.push_back(fbxManager.importScene(filename));
+	auto importedAssets = fbxManager.importScene(filename);
+	for (auto i : importedAssets) {
+		assets.push_back(i);
+	/*	switch (i->getType()) {
+		case SE_ASSET_SKELETON:
+			skeletons.push_back(static_cast<SESkeleton*>(i));
+		case SE_ASSET_MESH:
+			meshes.push_back(static_cast<SEMesh*>(i));
+		}*/
+	}
 }
 
 LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {

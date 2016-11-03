@@ -1,7 +1,7 @@
 #pragma once
 
 #include "d3dUtil.h"
-#include "VAO.h"
+#include "mesh.h"
 #include "VQS.h"
 #include <vector>
 
@@ -43,6 +43,6 @@ private:
 	SEVQS transFinal;
 	SEVQS transOrient;
 
-	static SEVAO boneMesh;
-	static SEVAO jointMesh;
+	static SEMesh boneMesh;
+	static SEMesh jointMesh;
 };

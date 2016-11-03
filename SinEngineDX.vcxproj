@@ -167,15 +167,16 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="GeometryGenerator.h" />
-    <ClInclude Include="meshes.h" />
+    <ClInclude Include="meshPresets.h" />
     <ClInclude Include="lighthelper.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="quaternion.h" />
-    <ClInclude Include="scene.h" />
+    <ClInclude Include="asset.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="skeleton.h" />
     <ClInclude Include="states.h" />
     <ClInclude Include="TextureMgr.h" />
-    <ClInclude Include="VAO.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="VQS.h" />
     <ClInclude Include="Waves.h" />
   </ItemGroup>
@@ -193,11 +194,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="quaternion.cpp" />
-    <ClCompile Include="scene.cpp" />
+    <ClCompile Include="asset.cpp" />
+    <ClCompile Include="SCENE.CPP" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="skeleton.cpp" />
     <ClCompile Include="states.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
-    <ClCompile Include="VAO.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="VQS.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>

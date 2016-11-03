@@ -3,7 +3,7 @@
 #include <fbxsdk.h>
 #include <vector>
 
-#include "scene.h"
+#include "asset.h"
 
 class SEFBX
 {
@@ -11,7 +11,10 @@ public:
 	SEFBX();
 	~SEFBX();
 
-	SEScene *importScene(const char *filename);
+	std::vector<SEAsset*> importScene(const char *filename);
 private:
+	SEBone *importSkeleton(FbxNode *skeletonNode, FbxScene *scene);
+	void importMesh(FbxNode *meshNode, FbxScene *scene);
+
 	FbxManager *manager;
 };
