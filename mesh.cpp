@@ -7,15 +7,7 @@ SEMesh::SEMesh() :
 	ibuffer(nullptr),
 	hasIndex(false),
 	drawCount(0) {
-}
-
-SEMesh::SEMesh(const UINT numVertex, const VertexData *meshData, const UINT numIndex, const int *indexData) :
-	buffer(nullptr), 
-	ibuffer(nullptr),
-	hasIndex(false),
-	drawCount(0)
-{
-	Load(numVertex, meshData, numIndex, indexData);
+	setType(SE_ASSET_MESH);
 }
 
 SEMesh::~SEMesh() {
@@ -70,13 +62,27 @@ void SEMesh::Bind() const
 	if(hasIndex) SEContext->IASetIndexBuffer(ibuffer, DXGI_FORMAT_R32_UINT, 0);
 }
 
+void SEMesh::Tick(float dt) {
+	SEAsset::Tick(dt);
+}
+
 void SEMesh::Draw()
 {
-	SE_Shader.Draw();
+	SEAsset::Draw();
+	SE_Shader->UpdateConstantBuffer();
 
 	Bind();
 
 	if (hasIndex)
+		SEContext->DrawIndexed(drawCount, 0, 0);
+	else
+		SEContext->Draw(drawCount, 0);
+}
+
+void SEMesh::Render() {
+	Bind();
+
+	if(hasIndex)
 		SEContext->DrawIndexed(drawCount, 0, 0);
 	else
 		SEContext->Draw(drawCount, 0);

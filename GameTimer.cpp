@@ -6,9 +6,8 @@
 #include "GameTimer.h"
 
 GameTimer::GameTimer()
-: mSecondsPerCount(0.0), mDeltaTime(-1.0), mBaseTime(0), 
-  mPausedTime(0), mPrevTime(0), mCurrTime(0), mStopped(false)
-{
+	: mSecondsPerCount(0.0), mDeltaTime(-1.0), mBaseTime(0),
+	mPausedTime(0), mPrevTime(0), mCurrTime(0), mStopped(false), localScale(1.0f), mAccumulatedTime(0.0) {
 	__int64 countsPerSec;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
 	mSecondsPerCount = 1.0 / (double)countsPerSec;
@@ -44,7 +43,8 @@ float GameTimer::TotalTime()const
 	
 	else
 	{
-		return (float)(((mCurrTime-mPausedTime)-mBaseTime)*mSecondsPerCount);
+		//return (float)(((mCurrTime-mPausedTime)-mBaseTime)*mSecondsPerCount);
+		return mAccumulatedTime;
 	}
 }
 
@@ -62,6 +62,8 @@ void GameTimer::Reset()
 	mPrevTime = currTime;
 	mStopTime = 0;
 	mStopped  = false;
+
+	mAccumulatedTime = 0.0;
 }
 
 void GameTimer::Start()
@@ -123,5 +125,7 @@ void GameTimer::Tick()
 	{
 		mDeltaTime = 0.0;
 	}
+
+	mAccumulatedTime += mDeltaTime * localScale;
 }
 

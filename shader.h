@@ -2,6 +2,13 @@
 
 #include "d3dUtil.h"
 
+enum InputLayoutID
+{
+	SE_INPUT_LAYOUT_UNDEFINED,
+	SE_INPUT_LAYOUT_VERTEX_DATA,
+	SE_INPUT_LAYOUT_CURVE_DATA
+};
+
 class D3DApp;
 
 struct VSConstantBufferLayout
@@ -11,6 +18,7 @@ struct VSConstantBufferLayout
 
 struct PSConstantBufferLayout
 {
+	DirectX::XMFLOAT4 dummy;
 };
 
 class SEShader
@@ -23,9 +31,9 @@ public:
 	{}
 	~SEShader();
 
-	void Init(const char* _filename);
+	void Init(const char* _filename, InputLayoutID id);
 	void Bind();
-	void Draw();
+	void UpdateConstantBuffer();
 	VSConstantBufferLayout &GetVSConstantData() { return VSLocalConstantCopy; }
 	PSConstantBufferLayout &GetPSConstantData() { return PSLocalConstantCopy; }
 

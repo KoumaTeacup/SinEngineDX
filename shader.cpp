@@ -1,6 +1,8 @@
 #include "shader.h"
 #include "d3dUtil.h"
-#include "d3dApp.h"
+#include "framework.h"
+#include "mesh.h"
+#include "spline.h"
 #include <fstream>
 
 SEShader::~SEShader() {
@@ -12,7 +14,7 @@ SEShader::~SEShader() {
 
 }
 
-void SEShader::Init(const char * _filename) {
+void SEShader::Init(const char * _filename, InputLayoutID id) {
 	std::string filename(_filename);
 	std::ifstream ifs;
 
@@ -21,7 +23,7 @@ void SEShader::Init(const char * _filename) {
 
 		// Read vertex shader source
 		ifs.seekg(0, ifs.end);	
-		UINT length = ifs.tellg();
+		UINT length = (UINT)ifs.tellg();
 		ifs.seekg(0, ifs.beg);
 		char *content = new char[length];
 		ifs.read(content, length);
@@ -30,17 +32,33 @@ void SEShader::Init(const char * _filename) {
 		// Create vertex shader
 		SEDevice->CreateVertexShader(content, length, nullptr, &vertexShader);
 
-		// Define & Create vertex shader input
-		D3D11_INPUT_ELEMENT_DESC ied[vertexDataInputCount] = {
-			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::position), D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::normal), D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexData, VertexData::texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::tangent), D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::color), D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"USE_VERTEX_COLOR", 0, DXGI_FORMAT_R32_UINT, 0, offsetof(VertexData, VertexData::useVertexColor), D3D11_INPUT_PER_VERTEX_DATA, 0}
-		};
-
-		SEDevice->CreateInputLayout(ied, ARRAYSIZE(ied), content, length, &inputLayout);
+		switch(id) {
+		case SE_INPUT_LAYOUT_VERTEX_DATA:
+		{
+			// Define vertexData input layout
+			D3D11_INPUT_ELEMENT_DESC ied[vertexDataInputCount] = {
+				{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::position), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::normal), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexData, VertexData::texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::tangent), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexData, VertexData::color), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"USE_VERTEX_COLOR", 0, DXGI_FORMAT_R32_UINT, 0, offsetof(VertexData, VertexData::useVertexColor), D3D11_INPUT_PER_VERTEX_DATA, 0}
+			};
+			SEDevice->CreateInputLayout(ied, ARRAYSIZE(ied), content, length, &inputLayout);
+		}
+			break;
+		case SE_INPUT_LAYOUT_CURVE_DATA:
+		{
+			// Define curveData input layout
+			D3D11_INPUT_ELEMENT_DESC ied[curveDataInputCount] = {
+				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(CurveData, CurveData::position), D3D11_INPUT_PER_VERTEX_DATA, 0 }
+			};
+			SEDevice->CreateInputLayout(ied, ARRAYSIZE(ied), content, length, &inputLayout);
+		}
+			break;
+		default:
+			break;
+		}
 
 		// Define & Create vertex shader constant buffer
 		D3D11_BUFFER_DESC cbd = {0};
@@ -52,14 +70,13 @@ void SEShader::Init(const char * _filename) {
 		cbd.StructureByteStride = 0;
 			
 		SEDevice->CreateBuffer(&cbd, nullptr, &VSConstantBuffer);
-
 	}
 
 	ifs.open("ShaderOut/" + filename + "PS.cso", std::ios::binary);
 	if (ifs) {
 		// Read vertex shader source
 		ifs.seekg(0, ifs.end);
-		UINT length = ifs.tellg();
+		UINT length = (UINT)ifs.tellg();
 		ifs.seekg(0, ifs.beg);
 		char *content = new char[length];
 		ifs.read(content, length);
@@ -89,7 +106,9 @@ void SEShader::Bind() {
 	SEContext->IASetInputLayout(inputLayout);
 }
 
-void SEShader::Draw() {
+void SEShader::UpdateConstantBuffer() {
+	// Transpose MVP
+	XMStoreFloat4x4(&VSLocalConstantCopy.mvp, XMMatrixTranspose(XMLoadFloat4x4(&VSLocalConstantCopy.mvp)));
 
 	// Update constant buffer
 	D3D11_MAPPED_SUBRESOURCE mappedSubresource;

@@ -16,16 +16,10 @@
 
 #include "d3dUtil.h"
 #include "GameTimer.h"
-#include "mesh.h"
-#include "shader.h"
-#include "states.h"
 #include <string>
 
 class D3DApp
 {
-	friend SEMesh;
-	friend SEShader;
-	friend SERenderStates;
 public:
 	D3DApp(HINSTANCE hInstance);
 	virtual ~D3DApp();

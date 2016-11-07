@@ -12,9 +12,11 @@ public:
 	void loadSkeleton(SEBone *_boneRoot) { boneRoot = _boneRoot; }
 
 	void virtual Draw();
-	void virtual Tick();
+	void virtual Tick(float dt);
 	void virtual Pause();
 	void virtual Resume();
+
+	SEBone* getRootBone() { return boneRoot; }
 
 private:
 

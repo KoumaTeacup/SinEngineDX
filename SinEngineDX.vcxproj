@@ -88,7 +88,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0601;FBXSDK_SHARED;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeaderFile>d3dUtil.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -160,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="animation.h" />
     <ClInclude Include="bone.h" />
+    <ClInclude Include="curvePresets.h" />
     <ClInclude Include="d3dApp.h" />
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="DDSTextureLoader.h" />
@@ -170,10 +172,12 @@
     <ClInclude Include="meshPresets.h" />
     <ClInclude Include="lighthelper.h" />
     <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="movement.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="asset.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="skeleton.h" />
+    <ClInclude Include="spline.h" />
     <ClInclude Include="states.h" />
     <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="mesh.h" />
@@ -193,11 +197,12 @@
     <ClCompile Include="LightHelper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathHelper.cpp" />
+    <ClCompile Include="movement.cpp" />
     <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="asset.cpp" />
-    <ClCompile Include="SCENE.CPP" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="skeleton.cpp" />
+    <ClCompile Include="spline.cpp" />
     <ClCompile Include="states.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="mesh.cpp" />
@@ -213,6 +218,18 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0_level_9_1</ShaderModel>
     </FxCompile>
     <FxCompile Include="DefaultPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="CurveVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="CurvePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>

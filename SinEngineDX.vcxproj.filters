@@ -22,6 +22,18 @@
     <Filter Include="MeshData">
       <UniqueIdentifier>{6eaa8125-4289-4943-8c71-42041fab05a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Primitive">
+      <UniqueIdentifier>{4235255e-fec7-4d5c-8c3e-706756d20045}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{3753e863-efbf-4574-9d3d-8cdd3d9f7bb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{e4fc4a9e-49e5-4d7f-a97f-79eeb15f5d6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Functional">
+      <UniqueIdentifier>{c078c2d4-672a-4ef1-bc7c-2b6824498c02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dApp.h">
@@ -54,38 +66,47 @@
     <ClInclude Include="framework.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="states.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="FBX.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bone.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="animation.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="quaternion.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VQS.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="asset.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="skeleton.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mesh.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="meshPresets.h">
       <Filter>MeshData</Filter>
+    </ClInclude>
+    <ClInclude Include="bone.h">
+      <Filter>Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="asset.h">
+      <Filter>Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="animation.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="states.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="VQS.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="quaternion.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="skeleton.h">
+      <Filter>Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="spline.h">
+      <Filter>Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="curvePresets.h">
+      <Filter>MeshData</Filter>
+    </ClInclude>
+    <ClInclude Include="movement.h">
+      <Filter>Functional</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -122,38 +143,41 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="states.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FBX.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bone.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="animation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="quaternion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VQS.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Primitive</Filter>
     </ClCompile>
     <ClCompile Include="asset.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="skeleton.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Primitive</Filter>
     </ClCompile>
     <ClCompile Include="mesh.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Primitive</Filter>
     </ClCompile>
-    <ClCompile Include="SCENE.CPP">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="animation.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="states.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="VQS.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="quaternion.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="skeleton.cpp">
+      <Filter>Primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="spline.cpp">
+      <Filter>Primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="movement.cpp">
+      <Filter>Functional</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +185,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="DefaultPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="CurveVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="CurvePS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

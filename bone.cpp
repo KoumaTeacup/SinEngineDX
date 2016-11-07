@@ -52,12 +52,12 @@ void SEBone::drawAll(SEBone *parent) {
 
 	// Convert to matrix to shader and scale to defined joint radius
 	XMMATRIX M = transFinal.toMatrixWithScale(XMVectorSet(SE_BONE_RADIUS, SE_BONE_RADIUS, SE_BONE_RADIUS, 0.0f));
-	XMStoreFloat4x4(&SE_Shader.GetVSConstantData().mvp, XMMatrixTranspose(M * SE_VP));
-	SE_Shader.Draw();
+	XMFLOAT4X4 originalM = SE_Shader->GetVSConstantData().mvp;
+	XMStoreFloat4x4(&SE_Shader->GetVSConstantData().mvp, M * XMLoadFloat4x4(&originalM));
+	SE_Shader->UpdateConstantBuffer();
 
 	// Draw Mesh
-	jointMesh.Bind();
-	jointMesh.Draw();
+	jointMesh.Render();
 
 	if (parent) {
 		XMVECTOR boneVector = transFinal.getV() - parent->transFinal.getV();
@@ -69,22 +69,21 @@ void SEBone::drawAll(SEBone *parent) {
 		SEQuaternion boneOrient = SEQuaternion::rotationFromUnitX(boneVector);
 
 		XMStoreFloat4x4(
-			&SE_Shader.GetVSConstantData().mvp,
-			XMMatrixTranspose(
+			&SE_Shader->GetVSConstantData().mvp,
 				XMMatrixScaling(f3.x - SE_BONE_RADIUS * 2.0f, SE_BONE_RADIUS, SE_BONE_RADIUS)
 				* XMMatrixTranslation(SE_BONE_RADIUS, 0.0f, 0.0f)
 				* XMMatrixRotationQuaternion(boneOrient.get())
 				* XMMatrixTranslationFromVector(parent->transFinal.getV())
-				* SE_VP
-			)
+				* XMLoadFloat4x4(&originalM)
 		);
 
-		SE_Shader.Draw();
+		SE_Shader->UpdateConstantBuffer();
 		SEContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		boneMesh.Bind();
-		boneMesh.Draw();
+		boneMesh.Render();
 		SEContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	}
+
+	SE_Shader->GetVSConstantData().mvp = originalM;
 	
 	for (auto i : children) {
 		i->drawAll(this);
@@ -101,9 +100,9 @@ void SEBone::Reset() {
 	for (auto i : children) i->Reset();
 }
 
-void SEBone::Tick() {
+void SEBone::Tick(float dt) {
 	for (auto i : animations) i->Tick();
-	for (auto i : children)i->Tick();
+	for (auto i : children)i->Tick(dt);
 }
 
 void SEBone::Resume() {
@@ -114,4 +113,9 @@ void SEBone::Resume() {
 void SEBone::Pause() {
 	for (auto i : animations) i->Pause();
 	for (auto i : children) i->Pause();
+}
+
+void SEBone::setAnimationTimeScale(int animationID, float scale) {
+	animations[animationID]->setTimeScale(scale); 
+	for(auto i : children) i->setAnimationTimeScale(animationID, scale);
 }

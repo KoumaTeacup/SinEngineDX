@@ -2,8 +2,10 @@
 
 #include "framework.h"
 #include "meshPresets.h"
+#include "curvePresets.h"
 
 using namespace SE_Internal_Mesh;
+using namespace SE_Internal_Curve;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd) {
@@ -17,9 +19,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	if (!framework.Init())	return 0;
 
-	framework.loadExplicitMesh(boxVCount, boxV, boxICount, boxI);
+	//framework.loadExplicitMesh(boxVCount, boxV, boxICount, boxI);
+	framework.loadFBX("fbx/Shin_SimpleScene_CleanModel.fbx");
+	//framework.loadExplicitCurve(simpleCurveNum, &simpleCurve[0], "simpleCurve");
+	framework.loadExplicitCurve(testCurveNum, &testCurve[0], "testCurve");
 	framework.loadFBX("fbx/sylvanas_run_only.fbx");
-
+	framework["fbx/sylvanas_run_only:ladysylvanaswindrunner"]->getMovement().AssignCurve(
+		static_cast<SESpline*>(framework["testCurve"]));
+	framework["fbx/sylvanas_run_only:ladysylvanaswindrunner"]->getMovement().EnablePath();
 
 	return framework.Run();
 }

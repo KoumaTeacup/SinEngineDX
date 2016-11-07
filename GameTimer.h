@@ -18,9 +18,14 @@ public:
 	void Stop();  // Call when paused.
 	void Tick();  // Call every frame.
 
+	void SetLocalScale(float scale) { 
+		localScale = scale; 
+	}
+
 private:
 	double mSecondsPerCount;
 	double mDeltaTime;
+	double mAccumulatedTime;
 
 	__int64 mBaseTime;
 	__int64 mPausedTime;
@@ -29,6 +34,8 @@ private:
 	__int64 mCurrTime;
 
 	bool mStopped;
+
+	float localScale;
 };
 
 #endif // GAMETIMER_H

@@ -20,7 +20,7 @@ public:
 
 	static void InitBoneMesh();
 	void Reset();
-	void Tick();
+	void Tick(float dt);
 	void Resume();
 	void Pause();
 
@@ -29,6 +29,8 @@ public:
 	const XMFLOAT3 &getLocalScale() { return localScale; }
 
 	const SEVQS &getVQS() { return transLocal; }
+
+	void setAnimationTimeScale(int animationID, float scale);
 
 private:
 	std::string name;

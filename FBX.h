@@ -1,9 +1,22 @@
 #pragma once
 
 #include <fbxsdk.h>
-#include <vector>
+#include <unordered_map>
+#include <DirectXMath.h>
 
-#include "asset.h"
+class SEBone;
+class SEMesh;
+class SEAsset;
+
+// helper struct for loading time vertex data array
+struct ControlPoint {
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 normal;
+	bool updated;
+	int index;
+	ControlPoint *next;
+	ControlPoint(const FbxVector4 &input);
+};
 
 class SEFBX
 {
@@ -11,10 +24,10 @@ public:
 	SEFBX();
 	~SEFBX();
 
-	std::vector<SEAsset*> importScene(const char *filename);
+	void importScene(const char *filename, std::unordered_map<std::string, SEAsset*> &allAssets);
 private:
 	SEBone *importSkeleton(FbxNode *skeletonNode, FbxScene *scene);
-	void importMesh(FbxNode *meshNode, FbxScene *scene);
+	SEMesh *importMesh(FbxNode *meshNode, FbxScene *scene);
 
 	FbxManager *manager;
 };

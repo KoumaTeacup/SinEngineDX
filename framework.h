@@ -2,6 +2,9 @@
 
 #include "d3dApp.h"
 #include "FBX.h"
+#include "shader.h"
+#include "states.h"
+#include <unordered_map>
 
 #define SE_Shader	Framework::currentShader
 #define SE_VP		Framework::currentVP
@@ -11,6 +14,7 @@
 class SEAsset;
 
 struct VertexData;
+struct CurveControlPoint;
 
 enum SERenderMode
 {
@@ -28,12 +32,19 @@ public:
 	Framework(HINSTANCE hInstance);
 	~Framework();
 
+	SEAsset *operator[](std::string name) { return assets[name]; }
+
 	bool Init();
 	void OnResize();
 	void UpdateScene(float dt);
 	void DrawScene();
 
-	void loadExplicitMesh(const UINT num, const VertexData * meshData, const int numIndex = 0, const int *indexData = nullptr);
+	void loadExplicitMesh(const UINT num, 
+		const VertexData * meshData,
+		const int numIndex = 0, 
+		const int *indexData = nullptr,
+		std::string assetName = "sePolygon");
+	void loadExplicitCurve(const UINT num, const CurveControlPoint *CPs, std::string assetName = "seSpline");
 	void loadFBX(const char* filename);
 
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -41,8 +52,8 @@ public:
 	ID3D11Device * getDevice() { return gDivece; }
 	ID3D11DeviceContext * getContext() { return gContext; }
 
-	static SEShader currentShader;
-	static XMMATRIX currentVP;
+	static SEShader *currentShader;
+	static DirectX::XMMATRIX currentVP;
 	static SERenderMode currentMode;
 	static SERenderStates renderState;
 
@@ -60,12 +71,13 @@ private:
 	//std::vector<SESkeleton*> skeletons;
 	//std::vector<SEMesh*> meshes;
 
-	std::vector<SEAsset*> assets;
+	std::unordered_map<std::string, SEAsset*> assets;
 
 	int mouseX, mouseY;
 	FLOAT cameraPhi;
 	FLOAT cameraTheta;
 	FLOAT cameraRadius;
-	XMFLOAT3 cameraFocus;
+	DirectX::XMFLOAT3 cameraFocus;
 
+	SEShader defaultSH, curveSH;
 };

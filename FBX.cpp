@@ -3,7 +3,7 @@
 #include "animation.h"
 #include "skeleton.h"
 
-#include <DirectXMath.h>
+using namespace std;
 
 SEFBX::SEFBX():manager(FbxManager::Create()) {
 	// Create a fbx manager
@@ -15,8 +15,7 @@ SEFBX::~SEFBX() {
 	if (manager) manager->Destroy();
 }
 
-std::vector<SEAsset*> SEFBX::importScene(const char *filename) {
-	std::vector<SEAsset*> imported;
+void SEFBX::importScene(const char *filename, unordered_map<string, SEAsset*> &allAssets) {
 
 	FbxScene* scene = FbxScene::Create(manager, filename);
 
@@ -27,7 +26,7 @@ std::vector<SEAsset*> SEFBX::importScene(const char *filename) {
 	importer->Initialize(filename, -1, manager->GetIOSettings());
 
 	// Import the new scene
-	if (!scene) return std::vector<SEAsset*>();
+	if (!scene) return;
 
 	importer->Import(scene);
 	importer->Destroy();
@@ -42,19 +41,26 @@ std::vector<SEAsset*> SEFBX::importScene(const char *filename) {
 
 		SESkeleton *newSkeleton;
 		SEMesh *newMesh;
+		string assetName;
 
 		switch (attributeType) {
 		case FbxNodeAttribute::eSkeleton:
 			// Import bone nodes
 			newSkeleton = new SESkeleton();
 			newSkeleton->setTimeMode(timeMode);
-			newSkeleton->setAssetName(std::string(scene->GetName()) + ":" + std::string(root->GetName()));
+			assetName = string(filename);
+			assetName = assetName.substr(0, assetName.size() - 4) + ":" + string(child->GetName());
+			newSkeleton->setAssetName(assetName);
 			newSkeleton->loadSkeleton(importSkeleton(child, scene));
-			imported.push_back(newSkeleton);
+			allAssets[newSkeleton->getAssetName()] = newSkeleton;
 			break;
 
 		case FbxNodeAttribute::eMesh:
-			// Import Mesh Data
+			newMesh = importMesh(child, scene);
+			assetName = string(filename);
+			assetName = assetName.substr(0, assetName.size() - 4) + ":" + string(child->GetName());
+			newMesh->setAssetName(assetName);
+			allAssets[newMesh->getAssetName()] = newMesh;
 			break;
 		default:
 			break;
@@ -62,8 +68,6 @@ std::vector<SEAsset*> SEFBX::importScene(const char *filename) {
 	}
 
 	scene->Destroy();
-
-	return imported;
 }
 
 SEBone * SEFBX::importSkeleton(FbxNode * skeletonNode, FbxScene * scene)
@@ -132,4 +136,113 @@ SEBone * SEFBX::importSkeleton(FbxNode * skeletonNode, FbxScene * scene)
 	}
 
 	return newBone;
+}
+
+SEMesh * SEFBX::importMesh(FbxNode * meshNode, FbxScene * scene)
+{
+	SEMesh *newMesh = new SEMesh();
+	newMesh->setAssetName(meshNode->GetName());
+	FbxMesh *pMesh = (FbxMesh*)meshNode->GetNodeAttribute();
+
+	int CPCount = pMesh->GetControlPointsCount();
+	FbxVector4* CP = pMesh->GetControlPoints();
+	vector<ControlPoint> CPList;
+
+	// Copy Control points to CPList
+	for (int i = 0; i < CPCount; i++) {
+		CPList.push_back(ControlPoint(CP[i]));
+		CPList.back().index = i;
+	}
+
+	int polygonCount = pMesh->GetPolygonCount();
+
+	// Load Vertex data into VertList
+	int vertexId = 0;
+	vector<int> indexList;
+	// Loop through all faces
+	for (int i = 0; i < polygonCount; i++) {
+
+		// contruct the index array
+		int polygonSize = pMesh->GetPolygonSize(i);
+		for (int j = 0; j < polygonSize; j++) {
+			indexList.push_back(pMesh->GetPolygonVertex(i, j));
+
+			// Assuming only 1 normal set
+			FbxGeometryElementNormal *normalList = pMesh->GetElementNormal();
+			
+			XMFLOAT3 newNormal;
+			// This basically assumes the fbx is not using smoothing groups
+			if (normalList->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+			{
+				FbxVector4 normalVec4;
+				switch (normalList->GetReferenceMode()) {
+				case FbxGeometryElement::eDirect:
+					normalVec4 = normalList->GetDirectArray().GetAt(vertexId);
+					newNormal.x = (float)normalVec4[0];
+					newNormal.y = (float)normalVec4[1];
+					newNormal.z = (float)normalVec4[2];
+					break;
+				case FbxGeometryElement::eIndexToDirect:
+				{
+					int id = normalList->GetIndexArray().GetAt(vertexId);
+					normalVec4 = normalList->GetDirectArray().GetAt(id);
+					newNormal.x = (float)normalVec4[0];
+					newNormal.y = (float)normalVec4[1];
+					newNormal.z = (float)normalVec4[2];
+				}
+					break;
+				default:
+					break;
+				}
+			}
+			
+			ControlPoint *pCPWithNormal = &CPList[indexList.back()];
+			while (pCPWithNormal) {
+				if (pCPWithNormal->updated) {
+					// If this control point is indexed before
+					if (pCPWithNormal->normal.x == newNormal.x &&
+						pCPWithNormal->normal.y == newNormal.y &&
+						pCPWithNormal->normal.z == newNormal.z)
+					{
+						// ... And the normal matches, update index to match the control point
+						indexList.back() = pCPWithNormal->index;
+						break;
+					}
+				}
+				else {
+					// If this is the first time update this control point, update it
+					pCPWithNormal->normal = newNormal;
+					pCPWithNormal->updated = true;
+					break;
+				}
+				pCPWithNormal = pCPWithNormal->next;
+			}
+
+			if (!pCPWithNormal) {
+				// No existing control point found matching the normal, push a new one into list
+				CPList.push_back(CPList[indexList.back()]);
+				CPList.back().normal = newNormal;
+				CPList.back().index = CPList.size() - 1;
+				indexList.back() = CPList.size() - 1;
+			}
+
+			vertexId++;
+		}//polygonSize
+	}//polygonCount
+
+	// Index array is correct, now we only have to change the format to GPU-friendly VertexData struct
+	vector<VertexData> vertData;
+	for (auto i : CPList) {
+		vertData.push_back(VertexData(i.pos, i.normal, XMFLOAT2(), XMFLOAT3(), i.normal, true));
+	}
+
+	newMesh->Load(vertData.size(), &vertData[0], indexList.size(), &indexList[0]);
+	return newMesh;
+}
+
+ControlPoint::ControlPoint(const FbxVector4 & input) : updated(false), normal(XMFLOAT3()), next(nullptr)
+{
+	pos.x = (float)input[0];
+	pos.y = (float)input[1];
+	pos.z = (float)input[2];
 }

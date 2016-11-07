@@ -197,19 +197,31 @@ DirectX::XMVECTOR SEQuaternion::toEuler() const {
 
 	float y2 = v.y * v.y;
 	float t0 = -2.0f * (y2 + v.z * v.z) + 1.0f;
-	float t1 = +2.0f * (v.x * v.y + s * v.z);
-	float t2 = -2.0f * (v.x * v.z - s * v.y);
-	float t3 = +2.0f * (v.y * v.z + s * v.x);
+	float t1 = +2.0f * (v.x * v.y - s * v.z);
+	float t2 = -2.0f * (v.x * v.z + s * v.y);
+	float t3 = +2.0f * (v.y * v.z - s * v.x);
 	float t4 = -2.0f * (v.x * v.x + y2) + 1.0f;
 
-	t2 = t2 > 1.0f ? 1.0f : t2;
-	t2 = t2 < -1.0f ? -1.0f : t2;
+	//t2 = t2 > 1.0f ? 1.0f : t2;
+	//t2 = t2 < -1.0f ? -1.0f : t2;
 
 	float x = atan2f(t3, t4);
 	float y = asinf(t2);
 	float z = atan2f(t1, t0);
 
+	//return XMLoadFloat3(&XMFLOAT3(x, y, z));
+
+	float sqw = s*s;
+	float sqx = v.x*v.x;
+	float sqy = v.y*v.y;
+	float sqz = v.z*v.z;
+
+	x = atan2f(2.f * (v.x*v.y + v.z*s), sqx - sqy - sqz + sqw);
+	y = asinf(-2.f * (v.x*v.z - v.y*s));
+	z = atan2f(2.f * (v.y*v.z + v.x*s), -sqx - sqy + sqz + sqw);
+	
 	return XMLoadFloat3(&XMFLOAT3(x, y, z));
+
 }
 
 SEQuaternion SEQuaternion::fromMatrix(CXMMATRIX matrix) {

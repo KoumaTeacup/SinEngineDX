@@ -10,10 +10,11 @@
 #include "mesh.h"
 #include "bone.h"
 #include "skeleton.h"
+#include "spline.h"
 
 using namespace DirectX;
 
-SEShader Framework::currentShader = SEShader();
+SEShader *Framework::currentShader = nullptr;
 XMMATRIX Framework::currentVP = XMMATRIX();
 SERenderMode Framework::currentMode = SE_RENDER_DEFAULT;
 SERenderStates Framework::renderState = SERenderStates();
@@ -35,14 +36,17 @@ Framework::Framework(HINSTANCE hInstance)
 Framework::~Framework() {
 	//for (auto mesh : meshes) delete mesh;
 	//for (auto skeleton : skeletons) delete skeleton;
-	for (auto i : assets) delete i;
+	for (auto i : assets) delete i.second;
 }
 
 bool Framework::Init() {
 	if (!D3DApp::Init())
 		return false;
 
-	currentShader.Init("Default");
+	defaultSH.Init("Default", SE_INPUT_LAYOUT_VERTEX_DATA);
+	curveSH.Init("Curve", SE_INPUT_LAYOUT_CURVE_DATA);
+	currentShader = &defaultSH;
+	//currentShader = &curveSH;
 	SEBone::InitBoneMesh();
 	renderState.Init();
 
@@ -71,14 +75,31 @@ void Framework::UpdateScene(float dt) {
 	);
 
 	// Build the project matrix
-	XMMATRIX P = XMMatrixPerspectiveFovLH(XM_PIDIV4, (float)mClientWidth / (float)mClientHeight, 0.1f, 1000.0f);
+	XMMATRIX P = XMMatrixPerspectiveFovLH(XM_PIDIV4, (float)mClientWidth / (float)mClientHeight, 0.1f, 10000.0f);
 
 	// Save VP for scene
 	currentVP = XMMatrixIdentity() * V * P;
 
 	// Tick bone animations
 	//for (auto i : skeletons) if(!paused) i->Tick();
-	for (auto i : assets) if (!paused) i->Tick();
+	for(auto i : assets) if(!paused) {
+		for(auto i : assets) {
+			switch(i.second->getType()) {
+			case SE_ASSET_MESH:
+				currentShader = &defaultSH;
+				break;
+			case SE_ASSET_SKELETON:
+				currentShader = &defaultSH;
+				break;
+			case SE_ASSET_SPLINE:
+				currentShader = &curveSH;
+				break;
+			default:
+				break;
+			}
+			i.second->Tick(dt);
+		}
+	}
 }
 
 void Framework::DrawScene() {
@@ -87,38 +108,50 @@ void Framework::DrawScene() {
 	SEContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 	SEContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// Concatenate Model - View - Projection matrix
-	XMStoreFloat4x4(&currentShader.GetVSConstantData().mvp, XMMatrixTranspose(currentVP));
-
-	currentShader.Bind();
-
 	for (auto i : assets) {
-		i->Draw();
+		switch(i.second->getType()) {
+		case SE_ASSET_MESH:
+			defaultSH.Bind();
+			currentShader = &defaultSH;
+			break;
+		case SE_ASSET_SKELETON:
+			defaultSH.Bind();
+			currentShader = &defaultSH;
+			break;
+		case SE_ASSET_SPLINE:
+			curveSH.Bind();
+			currentShader = &curveSH;
+			break;
+		default:
+			break;
+		}
+		i.second->Draw();
 	}
 
 	mSwapChain->Present(0, 0);
 }
 
-void Framework::loadExplicitMesh(const UINT numVertex, const VertexData * meshData, const int numIndex, const int * indexData) {
-	SEMesh *newMesh = new SEMesh(numVertex, meshData, numIndex, indexData);
-	newMesh->setAssetName("defaultCube");
-	newMesh->setType(SE_ASSET_MESH);
-	assets.push_back(newMesh);
+void Framework::loadExplicitMesh(const UINT numVertex, const VertexData * meshData, const int numIndex, const int * indexData, std::string assetName) {
+	if(assetName == "sePolygon") assetName += assets.size();
+	SEMesh *newMesh = new SEMesh();
+	newMesh->Load(numVertex, meshData, numIndex, indexData);
+	newMesh->setAssetName(assetName);
+	assets[assetName] = newMesh;
+}
+
+
+void Framework::loadExplicitCurve(const UINT num, const CurveControlPoint * CPs, std::string assetName)
+{
+	if(assetName == "seSpline") assetName += assets.size();
+	SESpline *newSpline = new SESpline();
+	newSpline->loadCP(num, CPs);
+	newSpline->setAssetName(assetName);
+	assets[assetName] = newSpline;
 }
 
 void Framework::loadFBX(const char * filename) {
-	auto importedAssets = fbxManager.importScene(filename);
-	for (auto i : importedAssets) {
-		assets.push_back(i);
-	/*	switch (i->getType()) {
-		case SE_ASSET_SKELETON:
-			skeletons.push_back(static_cast<SESkeleton*>(i));
-		case SE_ASSET_MESH:
-			meshes.push_back(static_cast<SEMesh*>(i));
-		}*/
-	}
+	fbxManager.importScene(filename, assets);
 }
-
 LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	D3DApp::MsgProc(hwnd, msg, wParam, lParam);
 

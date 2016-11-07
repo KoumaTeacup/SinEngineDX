@@ -93,6 +93,8 @@ public:
 	SEVQS getTransformSLerped();
 	SEVQS getTransformiSLerped();
 
+	void setTimeScale(float scale) { timer.SetLocalScale(scale); }
+
 private:
 	float stepTime;
 	DirectX::XMFLOAT3 stepV;
