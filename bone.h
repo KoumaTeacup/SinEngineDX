@@ -20,7 +20,7 @@ public:
 
 	static void InitBoneMesh();
 	void Reset();
-	void Tick(float dt);
+	void Tick(float dt, SEBone * parent = nullptr);
 	void Resume();
 	void Pause();
 
@@ -32,6 +32,12 @@ public:
 
 	void setAnimationTimeScale(int animationID, float scale);
 
+	void clearIKRefinement();
+
+	XMVECTOR resolveIK(SEBone *parent, XMVECTOR effector);
+	void resolveTransformation(SEBone *parent);
+
+	void setFinalTranslation(DirectX::FXMVECTOR trans) { transFinal.setV(trans); }
 private:
 	std::string name;
 	std::vector<SEBone*> children;
@@ -40,6 +46,7 @@ private:
 	DirectX::XMFLOAT3 localRotation;
 	DirectX::XMFLOAT3 localScale;
 	SEQuaternion orient;
+	SEQuaternion ikRefinement;
 	SEVQS transLocal;
 	SEVQS transAnim;
 	SEVQS transFinal;
@@ -47,4 +54,5 @@ private:
 
 	static SEMesh boneMesh;
 	static SEMesh jointMesh;
+
 };

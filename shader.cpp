@@ -70,6 +70,8 @@ void SEShader::Init(const char * _filename, InputLayoutID id) {
 		cbd.StructureByteStride = 0;
 			
 		SEDevice->CreateBuffer(&cbd, nullptr, &VSConstantBuffer);
+
+		delete content;
 	}
 
 	ifs.open("ShaderOut/" + filename + "PS.cso", std::ios::binary);
@@ -96,6 +98,7 @@ void SEShader::Init(const char * _filename, InputLayoutID id) {
 
 		SEDevice->CreateBuffer(&cbd, nullptr, &PSConstantBuffer);
 
+		delete content;
 	}
 }
 

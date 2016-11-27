@@ -16,8 +16,11 @@ public:
 	void virtual Pause();
 	void virtual Resume();
 
+	void resolveIK(DirectX::XMVECTOR effector, float dt);
+
 	SEBone* getRootBone() { return boneRoot; }
 
+	DirectX::XMFLOAT3 rootTrans;
 private:
 
 	SEBone *boneRoot;

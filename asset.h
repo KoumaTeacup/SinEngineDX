@@ -19,7 +19,7 @@ class SEAsset
 {
 public:
 	SEAsset() :type(SE_ASSET_UNDEFINED), name(std::string()), movement() {}
-	~SEAsset() {};
+	virtual ~SEAsset() {};
 
 	void setTimeMode(FbxTime::EMode _timeMode) { timeMode = _timeMode; }
 	void setType(SEAssetType _type) { type = _type; }

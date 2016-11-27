@@ -41,15 +41,6 @@ void SEBone::addChild(SEBone * child) {
 
 void SEBone::drawAll(SEBone *parent) {
 
-	// Retrieve parent transformation
-	SEVQS parentTransform = parent ? parent->transFinal : SEVQS();
-
-	// Assuming 1 animation
-	transAnim = animations[0]->getTransformiSLerped();
-
-	// Store local transformation
-	transFinal = transAnim * transOrient* parentTransform;
-
 	// Convert to matrix to shader and scale to defined joint radius
 	XMMATRIX M = transFinal.toMatrixWithScale(XMVectorSet(SE_BONE_RADIUS, SE_BONE_RADIUS, SE_BONE_RADIUS, 0.0f));
 	XMFLOAT4X4 originalM = SE_Shader->GetVSConstantData().mvp;
@@ -100,9 +91,19 @@ void SEBone::Reset() {
 	for (auto i : children) i->Reset();
 }
 
-void SEBone::Tick(float dt) {
+void SEBone::Tick(float dt, SEBone * parent) {
 	for (auto i : animations) i->Tick();
-	for (auto i : children)i->Tick(dt);
+
+	// Retrieve parent transformation
+	SEVQS parentTransform = parent ? parent->transFinal : SEVQS();
+
+	// Assuming 1 animation
+	transAnim = animations[0]->getTransformiSLerped();
+
+	// Store local transformation
+	transFinal = transAnim * transOrient* parentTransform;
+
+	for (auto i : children)i->Tick(dt, this);
 }
 
 void SEBone::Resume() {
@@ -118,4 +119,49 @@ void SEBone::Pause() {
 void SEBone::setAnimationTimeScale(int animationID, float scale) {
 	animations[animationID]->setTimeScale(scale); 
 	for(auto i : children) i->setAnimationTimeScale(animationID, scale);
+}
+
+void SEBone::clearIKRefinement() {
+	ikRefinement.identify();
+	for(auto i : children) i->clearIKRefinement();
+}
+
+XMVECTOR SEBone::resolveIK(SEBone *parent, XMVECTOR effector) {
+
+	XMVECTOR local = transFinal.getV();
+
+	if(children.size() == 0) return transFinal.getV();
+	XMVECTOR endPos = children.front()->resolveIK(this, effector);
+	XMVECTOR vc = endPos - local;
+	XMVECTOR vd = effector - local;
+	XMVECTOR dotProduct = XMVector3Dot(vc, vd);
+	XMVECTOR crossProduct = XMVector3Normalize(XMVector3Cross(vc, vd));
+	XMVECTOR lenc = XMVector3Length(vc);
+	XMVECTOR lend = XMVector3Length(vd);
+	float theta = dotProduct.m128_f32[0] / lenc.m128_f32[0] / lend.m128_f32[0];
+	if(theta > 1.0f) theta -= 0.0001f;
+	if(theta < -1.0f) theta += -0.0001f;
+
+	float alpha = acosf(theta);
+	crossProduct *= sinf(alpha / 2.0f);
+	SEQuaternion newRefinement(cosf(alpha / 2.0f), crossProduct);
+	SEQuaternion concatRefinement =  newRefinement * ikRefinement;
+	ikRefinement = newRefinement * ikRefinement;
+	return local + newRefinement.rotate(vc);
+}
+
+void SEBone::resolveTransformation(SEBone *parent) {
+	if(parent) {
+		SEVQS parentTransform = parent ? parent->transFinal : SEVQS();
+		transFinal = transAnim;
+		transFinal *= transOrient;
+		transFinal *= parentTransform;
+	}
+	else {
+		transFinal.setQ(transAnim.getQ());
+		transFinal *= transOrient;
+	}
+	transFinal.setQ(ikRefinement * transFinal.getQ());
+	for(auto i : children) i->resolveTransformation(this);
+
 }

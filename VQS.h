@@ -49,7 +49,9 @@ public:
 
 	// Getter
 	DirectX::XMVECTOR getV() const {	return XMLoadFloat3(&v); }
+	void setV(const DirectX::XMVECTOR &_v) { XMStoreFloat3(&v, _v); }
 	SEQuaternion getQ() const { return q; }
+	void setQ(const SEQuaternion &_q) { q = _q; }
 	float getS() const { return s; }
 private:
 	DirectX::XMFLOAT3 v;

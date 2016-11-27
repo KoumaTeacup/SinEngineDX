@@ -7,7 +7,7 @@
 struct CurveControlPoint {
 	DirectX::XMFLOAT3 pos;
 	CurveControlPoint(float x, float y, float z) :pos(x, y, z) {}
-	CurveControlPoint(DirectX::XMFLOAT3 _pos) :pos(_pos) {}
+	CurveControlPoint(DirectX::FXMVECTOR _pos) { XMStoreFloat3(&pos, _pos); }
 };
 
 #define curveDataInputCount 1
@@ -25,11 +25,13 @@ public:
 	~SESpline();
 
 	void loadCP(const int num, const CurveControlPoint *_cpList);
-	void loadCP(const int num, const DirectX::XMFLOAT3 *_cpList);
+	void loadCP(const int num, DirectX::FXMVECTOR *_cpList);
 	//void Init();
 	void virtual Tick(float dt);
 	void Bind();
 	void virtual Draw();
+
+	bool isEmpty() { return CPList.size() == 0; }
 
 	DirectX::XMVECTOR computeCurve(float t);
 
@@ -38,9 +40,9 @@ private:
 
 	UINT smoothness;
 	std::vector<CurveControlPoint> CPList;
-	DirectX::XMVECTOR splineFactorX;
-	DirectX::XMVECTOR splineFactorY;
-	DirectX::XMVECTOR splineFactorZ;
+	DirectX::XMFLOAT4 splineFactorX;
+	DirectX::XMFLOAT4 splineFactorY;
+	DirectX::XMFLOAT4 splineFactorZ;
 	std::vector<float> coefX;
 	std::vector<float> coefY;
 	std::vector<float> coefZ;

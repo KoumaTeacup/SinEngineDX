@@ -50,6 +50,8 @@ bool Framework::Init() {
 	SEBone::InitBoneMesh();
 	renderState.Init();
 
+	assets["ikPathCurve"] = new SESpline();
+
 	return true;
 }
 
@@ -82,22 +84,26 @@ void Framework::UpdateScene(float dt) {
 
 	// Tick bone animations
 	//for (auto i : skeletons) if(!paused) i->Tick();
-	for(auto i : assets) if(!paused) {
+	if(!paused) {
 		for(auto i : assets) {
+			if(!i.second) continue;
 			switch(i.second->getType()) {
 			case SE_ASSET_MESH:
 				currentShader = &defaultSH;
+				i.second->Tick(dt);
 				break;
 			case SE_ASSET_SKELETON:
 				currentShader = &defaultSH;
+				i.second->Tick(dt);
+				static_cast<SESkeleton*>(i.second)->resolveIK(assets["sePolygon1"]->getMovement().getWorldTranslate(), dt);
 				break;
 			case SE_ASSET_SPLINE:
 				currentShader = &curveSH;
+				i.second->Tick(dt);
 				break;
 			default:
 				break;
 			}
-			i.second->Tick(dt);
 		}
 	}
 }
@@ -109,6 +115,7 @@ void Framework::DrawScene() {
 	SEContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	for (auto i : assets) {
+		if(!i.second) continue;
 		switch(i.second->getType()) {
 		case SE_ASSET_MESH:
 			defaultSH.Bind();
@@ -132,7 +139,7 @@ void Framework::DrawScene() {
 }
 
 void Framework::loadExplicitMesh(const UINT numVertex, const VertexData * meshData, const int numIndex, const int * indexData, std::string assetName) {
-	if(assetName == "sePolygon") assetName += assets.size();
+	if(assetName == "sePolygon") assetName += '0' + assets.size();
 	SEMesh *newMesh = new SEMesh();
 	newMesh->Load(numVertex, meshData, numIndex, indexData);
 	newMesh->setAssetName(assetName);
@@ -142,7 +149,7 @@ void Framework::loadExplicitMesh(const UINT numVertex, const VertexData * meshDa
 
 void Framework::loadExplicitCurve(const UINT num, const CurveControlPoint * CPs, std::string assetName)
 {
-	if(assetName == "seSpline") assetName += assets.size();
+	if(assetName == "seSpline") assetName += '0' + assets.size();
 	SESpline *newSpline = new SESpline();
 	newSpline->loadCP(num, CPs);
 	newSpline->setAssetName(assetName);
@@ -202,6 +209,8 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 void Framework::OnMouseMove(WPARAM btnState, int x, int y) {
+
+
 	switch (btnState) {
 	case MK_LBUTTON:
 	{
@@ -210,7 +219,6 @@ void Framework::OnMouseMove(WPARAM btnState, int x, int y) {
 		break;
 	}
 	case MK_RBUTTON:
-
 		cameraFocus.x += (
 			(mouseX - x) * cosf(cameraTheta) + 
 			(mouseY - y) * cosf(cameraPhi) * sinf(cameraTheta)
@@ -223,9 +231,35 @@ void Framework::OnMouseMove(WPARAM btnState, int x, int y) {
 
 		cameraFocus.y += (y - mouseY) *0.0015f * sinf(cameraPhi) * cameraRadius;
 		break;
+
+	case MK_CONTROL:
+		assets["sePolygon1"]->getMovement().AddWorldTranslate(XMVectorSet(0.0f, mouseY-y, 0.0f, 0.0f));
+		updatePolygonPath();
+		break;
 	default:
+		assets["sePolygon1"]->getMovement().AddWorldTranslate(XMVectorSet(x - mouseX, 0.0f, mouseY - y, 0.0f));
+		//assets["sePolygon1"]->getMovement().SetWorldTranslate(XMVectorSet(50.0f, 50.0f, 50.0f, 0.0f));
+		//assets["sePolygon1"]->getMovement().AddWorldTranslate(XMVectorSet(x - mouseX, 0.0f, mouseY - y, 0.0f));
+		updatePolygonPath();
 		break;
 	}
 	mouseX = x;
 	mouseY = y;
+}
+
+void Framework::updatePolygonPath() {
+	SESpline *pCurve = static_cast<SESpline*>(assets["ikPathCurve"]);
+
+	XMVECTOR modelPos = XMLoadFloat3(&static_cast<SESkeleton*>(assets["fbx/ikModel:joint1"])->rootTrans) * XMVectorSet(1.0f, 0.0f, 1.0f, 0.0f);
+	XMVECTOR targetPos = assets["sePolygon1"]->getMovement().getWorldTranslate() * XMVectorSet(1.0f, 0.0f, 1.0f, 0.0f);
+
+	const CurveControlPoint path[4] = {
+		CurveControlPoint(modelPos),
+		CurveControlPoint(modelPos + (targetPos - modelPos) * XMVectorSet(0.23f, 0.0f, 0.43f, 0.0f)),
+		CurveControlPoint(modelPos + (targetPos - modelPos) * XMVectorSet(0.76f, 0.0f, 0.56f, 0.0f)),
+		CurveControlPoint(targetPos) };
+	pCurve->loadCP(4, path);
+
+	assets["fbx/ikModel:joint1"]->getMovement().tableReady = false;
+	assets["fbx/ikModel:joint1"]->getMovement().Reset();
 }

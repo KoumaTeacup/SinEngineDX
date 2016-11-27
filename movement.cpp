@@ -14,6 +14,7 @@ using namespace DirectX;
 
 SEMovement::SEMovement() :
 	followCurve(false),
+	tableReady(false),
 	pathCurve(nullptr),
 	worldTranslate(0.0f, 0.0f, 0.0f),
 	worldScale(1.0f, 1.0f, 1.0f),
@@ -24,6 +25,31 @@ SEMovement::SEMovement() :
 void SEMovement::AssignCurve(SESpline * _pathCurve) { 
 	pathCurve = _pathCurve; 
 	constructTable();
+}
+
+void SEMovement::EnablePath() {
+	followCurve = true;
+	accumulatedTime = 0.0f;
+}
+
+void SEMovement::AddWorldTranslate(FXMVECTOR trans) {
+	XMVECTOR vec = XMLoadFloat3(&worldTranslate);
+	vec += trans;
+	XMStoreFloat3(&worldTranslate, vec);
+	worldTranslate.x = worldTranslate.x > 250.0f ? 250.0f : worldTranslate.x;
+	worldTranslate.x = worldTranslate.x < -250.0f ? -250.0f : worldTranslate.x;
+	worldTranslate.y = worldTranslate.y > 200.0f ? 200.0f : worldTranslate.y;
+	worldTranslate.y = worldTranslate.y < 5.0f ? 5.0f : worldTranslate.y;
+	worldTranslate.z = worldTranslate.z > 250.0f ? 250.0f : worldTranslate.z;
+	worldTranslate.z = worldTranslate.z < -250.0f ? -250.0f : worldTranslate.z;
+}
+
+void SEMovement::SetScale(DirectX::FXMVECTOR scale) {
+	XMStoreFloat3(&worldScale, scale);
+}
+
+DirectX::FXMVECTOR SEMovement::getWorldTranslate() {
+	return XMLoadFloat3(&worldTranslate);
 }
 
 void SEMovement::Tick(float dt, SEAsset *owner) {
@@ -72,9 +98,40 @@ void SEMovement::Draw() {
 		SE_VP);
 }
 
+DirectX::XMVECTOR SEMovement::getTickTranslation(float dt) {
+	float s, v;
+	float timeScale = 0.2f;
+	dt *= timeScale;
+	accumulatedTime = accumulatedTime + dt;
+	if(accumulatedTime > 1.0f) accumulatedTime = 1.0f;
+
+
+	if(accumulatedTime < 0.3f) {
+		v = sinf((accumulatedTime / 0.3f - 0.5f) * XM_PI) / 2.0f + 0.5f;
+		s = -cosf((accumulatedTime / 0.3f - 0.5f) * XM_PI) / 2.0f / XM_PI * 0.3f + 0.5f * accumulatedTime;
+	}
+	else if(accumulatedTime > 0.7f) {
+		v = -sinf(((accumulatedTime - 0.7f) / 0.3f - 0.5f) * XM_PI) / 2.0f + 0.5f;
+		s = cosf(((accumulatedTime - 0.7f) / 0.3f - 0.5f) * XM_PI) / 2.0f / XM_PI * 0.3f + 0.5f * (accumulatedTime - 0.7f);
+		s += 0.55f;
+	}
+	else {
+		s = 0.15f + (accumulatedTime - 0.3f);
+		v = 1.0f;
+	}
+
+	s /= 0.7f;
+
+	if(s > 1.0f) s -= 0.001f;
+	if(s < 0.0f) s += 0.001f;
+	return arcLengthReverse(s);
+}
+
 void SEMovement::constructTable() {
-	if(!pathCurve) {
-		arcLengthTable.clear();
+	
+	arcLengthTable.clear();
+	tableReady = true;
+	if(!pathCurve || pathCurve->isEmpty()) {
 		return;
 	}
 

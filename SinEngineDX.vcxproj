@@ -90,13 +90,13 @@
       <PreprocessorDefinitions>_WIN32_WINNT=0x0601;FBXSDK_SHARED;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Dev Software\Visual Leak Detector\include;$(ProjectDir)Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libfbxsdk.lib;d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Dev Software\Visual Leak Detector\lib\Win32;$(ProjectDir)lib\debug</AdditionalLibraryDirectories>
     </Link>
     <FxCompile />
     <FxCompile>

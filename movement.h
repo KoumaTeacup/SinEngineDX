@@ -22,14 +22,23 @@ public:
 	~SEMovement() {}
 
 	void AssignCurve(SESpline *_pathCurve);
-	void EnablePath() { followCurve = true; }
+	void EnablePath();
 	void DisablePath() { followCurve = false; }
+	void AddWorldTranslate(DirectX::FXMVECTOR trans);
+	void SetWorldTranslate(DirectX::FXMVECTOR trans) { XMStoreFloat3(&worldTranslate,  trans); }
+	void SetScale(DirectX::FXMVECTOR scale);
+	void Reset() { accumulatedTime = 0.0f; }
+
+	DirectX::FXMVECTOR getWorldTranslate();
 
 	void Tick(float dt, SEAsset *owner);
 	void Draw();
 
-private:
+	DirectX::XMVECTOR getTickTranslation(float dt);
 	void constructTable();
+
+	bool tableReady;
+private:
 	DirectX::XMVECTOR arcLengthReverse(float s);
 	DirectX::XMVECTOR arcLengthReverse(float s, int begin, int end);
 

@@ -76,13 +76,14 @@ SESpline::~SESpline()
 
 void SESpline::loadCP(const int num, const CurveControlPoint * _cpList)
 {
+	CPList.clear();
 	for (int i = 0; i < num; i++) {
 		CPList.push_back(_cpList[i]);
 	}
 	initializeLineSeg();
 }
 
-void SESpline::loadCP(const int num, const XMFLOAT3 * _cpList)
+void SESpline::loadCP(const int num, FXMVECTOR * _cpList)
 {
 	for (int i = 0; i < num; i++) {
 		CPList.push_back(CurveControlPoint( _cpList[i]));
@@ -117,14 +118,19 @@ void SESpline::Draw()
 
 XMVECTOR SESpline::computeCurve(float t) {
 	t *= CPList.size() - 1;
-
+	
+	float kk = CPList.front().pos.x;
 	XMVECTOR vec4 = XMVectorSet(1, t, t*t, t*t*t);
 	XMFLOAT4 tempVec;
-	XMStoreFloat4(&tempVec, XMVector4Dot(vec4, splineFactorX));
+	XMVECTOR v4;
+	v4 = XMLoadFloat4(&splineFactorX);
+	XMStoreFloat4(&tempVec, XMVector4Dot(vec4, v4));
 	float x = tempVec.x;
-	XMStoreFloat4(&tempVec, XMVector4Dot(vec4, splineFactorY));
+	v4 = XMLoadFloat4(&splineFactorY);
+	XMStoreFloat4(&tempVec, XMVector4Dot(vec4, v4));
 	float y = tempVec.y;
-	XMStoreFloat4(&tempVec, XMVector4Dot(vec4, splineFactorZ));
+	v4 = XMLoadFloat4(&splineFactorZ);
+	XMStoreFloat4(&tempVec, XMVector4Dot(vec4, v4));
 	float z = tempVec.z;
 
 	for(unsigned l = 0; l < coefX.size(); l++) {
@@ -169,9 +175,18 @@ void SESpline::initializeLineSeg()
 	RowReduce(homoEquationY, len + 2);
 	RowReduce(homoEquationZ, len + 2);
 
-	splineFactorX = XMVectorSet(homoEquationX[0][len + 2], homoEquationX[1][len + 2], homoEquationX[2][len + 2], homoEquationX[3][len + 2]);
-	splineFactorY = XMVectorSet(homoEquationY[0][len + 2], homoEquationY[1][len + 2], homoEquationY[2][len + 2], homoEquationY[3][len + 2]);
-	splineFactorZ = XMVectorSet(homoEquationZ[0][len + 2], homoEquationZ[1][len + 2], homoEquationZ[2][len + 2], homoEquationZ[3][len + 2]);
+	splineFactorX.x = homoEquationX[0][len + 2];
+	splineFactorX.y = homoEquationX[1][len + 2];
+	splineFactorX.z = homoEquationX[2][len + 2];
+	splineFactorX.w = homoEquationX[3][len + 2];
+	splineFactorY.x = homoEquationY[0][len + 2];
+	splineFactorY.y = homoEquationY[1][len + 2];
+	splineFactorY.z = homoEquationY[2][len + 2];
+	splineFactorY.w = homoEquationY[3][len + 2];
+	splineFactorZ.x = homoEquationZ[0][len + 2];
+	splineFactorZ.y = homoEquationZ[1][len + 2];
+	splineFactorZ.z = homoEquationZ[2][len + 2];
+	splineFactorZ.w = homoEquationZ[3][len + 2];
 
 	if (buffer) ReleaseCOM(buffer);
 
@@ -199,11 +214,15 @@ void SESpline::initializeLineSeg()
 	for(float t = 0; t <= len - 1 + 0.00001;) {
 		XMVECTOR vec4 = XMVectorSet(1, t, t*t, t*t*t);
 		XMFLOAT4 tempVec;
-		XMStoreFloat4(&tempVec, XMVector4Dot(vec4, splineFactorX));
+		XMVECTOR v4;
+		v4 = XMLoadFloat4(&splineFactorX);
+		XMStoreFloat4(&tempVec, XMVector4Dot(vec4, v4));
 		float x = tempVec.x;
-		XMStoreFloat4(&tempVec, XMVector4Dot(vec4, splineFactorY));
+		v4 = XMLoadFloat4(&splineFactorY);
+		XMStoreFloat4(&tempVec, XMVector4Dot(vec4, v4));
 		float y = tempVec.y;
-		XMStoreFloat4(&tempVec, XMVector4Dot(vec4, splineFactorZ));
+		v4 = XMLoadFloat4(&splineFactorZ);
+		XMStoreFloat4(&tempVec, XMVector4Dot(vec4, v4));
 		float z = tempVec.z;
 
 		for(int l = 0; l < len - 2; l++) {
@@ -216,5 +235,6 @@ void SESpline::initializeLineSeg()
 	}
 	sd.pSysMem = &curveData[0];
 
+	if(buffer) ReleaseCOM(buffer);
 	SEDevice->CreateBuffer(&bd, &sd, &buffer);
 }

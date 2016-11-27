@@ -80,4 +80,6 @@ private:
 	DirectX::XMFLOAT3 cameraFocus;
 
 	SEShader defaultSH, curveSH;
+
+	void updatePolygonPath();
 };

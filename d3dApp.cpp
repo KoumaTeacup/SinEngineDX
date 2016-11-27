@@ -209,7 +209,9 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_ACTIVATE:
 		if( LOWORD(wParam) == WA_INACTIVE )
 		{
+			#ifndef _DEBUG
 			mAppPaused = true;
+			#endif
 			mTimer.Stop();
 		}
 		else
@@ -228,7 +230,9 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			if( wParam == SIZE_MINIMIZED )
 			{
+				#ifndef _DEBUG
 				mAppPaused = true;
+				#endif
 				mMinimized = true;
 				mMaximized = false;
 			}

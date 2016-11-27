@@ -22,18 +22,18 @@ const CurveControlPoint testCurve[testCurveNum] = {
 	CurveControlPoint(-335, 1, -515),
 	CurveControlPoint(-200, 1, -55),
 	CurveControlPoint(-300, 1, -0)*/
-	CurveControlPoint(-5.500, 0.0, -22.000),
-	CurveControlPoint(-11.00, 0.0, -15.399),
-	CurveControlPoint(-16.50, 0.0, -4.400),
-	CurveControlPoint(-25.29, 0.0, -13.200),
-	CurveControlPoint(-13.20, 0.0, 6.600),
-	CurveControlPoint(5.500 ,0.0 ,-12.649),
-	CurveControlPoint(22.00 ,0.0 ,-5.500),
-	CurveControlPoint(1.650 ,0.0 ,4.400),
-	CurveControlPoint(-2.200, 0.0, -13.200),
-	CurveControlPoint(11.00 ,0.0 ,14.850),
-	CurveControlPoint(24.75 ,0.0 ,8.250),
-	CurveControlPoint(27.50 ,0.0 ,-1.100)
+	CurveControlPoint(-5.500f, 0.0f, -22.000f),
+	CurveControlPoint(-11.00f, 0.0f, -15.399f),
+	CurveControlPoint(-16.50f, 0.0f, -4.400f),
+	CurveControlPoint(-25.29f, 0.0f, -13.200f),
+	CurveControlPoint(-13.20f, 0.0f, 6.600f),
+	CurveControlPoint(5.500f ,0.0f ,-12.649f),
+	CurveControlPoint(22.00f ,0.0f ,-5.500f),
+	CurveControlPoint(1.650f ,0.0f ,4.400f),
+	CurveControlPoint(-2.200f, 0.0f, -13.200f),
+	CurveControlPoint(11.00f ,0.0f ,14.850f),
+	CurveControlPoint(24.75f ,0.0f ,8.250f),
+	CurveControlPoint(27.50f ,0.0f ,-1.100f)
 };
 
 const UINT simpleCurveNum = 4;

@@ -4,7 +4,7 @@
 #include "animation.h"
 #include "framework.h"
 
-SESkeleton::SESkeleton() :boneRoot(nullptr) {
+SESkeleton::SESkeleton() :boneRoot(nullptr), rootTrans(0.0f, 0.0f, 0.0f) {
 	setType(SE_ASSET_SKELETON);
 }
 
@@ -32,4 +32,30 @@ void SESkeleton::Pause() {
 
 void SESkeleton::Resume() {
 	boneRoot->Resume();
+}
+
+void SESkeleton::resolveIK(DirectX::XMVECTOR effector, float dt) {
+
+	XMVECTOR oldEnd, newEnd = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	//boneRoot->clearIKRefinement();
+
+	boneRoot->setFinalTranslation(XMLoadFloat3(&rootTrans));
+	boneRoot->resolveTransformation(nullptr);
+	
+	XMVECTOR vec3;
+	do {
+		oldEnd = newEnd;
+		newEnd = boneRoot->resolveIK(nullptr, effector);
+		boneRoot->resolveTransformation(nullptr);
+		
+		vec3 = XMVector3Length(newEnd - effector);
+		if(vec3.m128_f32[0] < 1.0f) break;
+		vec3 = XMVector3Length(oldEnd - newEnd);
+	} while(vec3.m128_f32[0] > 0.1f);
+
+	if(XMVector3Length(newEnd - effector).m128_f32[0] > 3.0f) {
+		if(!getMovement().tableReady) getMovement().constructTable();
+		XMStoreFloat3(&rootTrans, getMovement().getTickTranslation(dt));
+		rootTrans.y = 0.0f;
+	}
 }
