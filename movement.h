@@ -30,6 +30,10 @@ public:
 	void Reset() { accumulatedTime = 0.0f; }
 
 	DirectX::FXMVECTOR getWorldTranslate();
+	DirectX::FXMVECTOR getWorldScale();
+	SEQuaternion &getRotationRef() { return worldRotation; }
+
+	void computePhysicsRotation(DirectX::FXMVECTOR omega);
 
 	void Tick(float dt, SEAsset *owner);
 	void Draw();

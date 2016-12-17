@@ -11,6 +11,8 @@
 #define SE_Mode		Framework::currentMode
 #define SE_State	Framework::renderState
 
+#define SE_PHYSICS_STEPS_PER_SECOND 30.0f
+
 class SEAsset;
 
 struct VertexData;
@@ -46,6 +48,7 @@ public:
 		std::string assetName = "sePolygon");
 	void loadExplicitCurve(const UINT num, const CurveControlPoint *CPs, std::string assetName = "seSpline");
 	void loadFBX(const char* filename);
+	void loadSpring(SEAsset * a0o, int MassVertexID0, SEAsset * a1o, int MassVertexID1, std::string assetName = "seSpring");
 
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -68,9 +71,6 @@ private:
 
 	SEFBX fbxManager;
 
-	//std::vector<SESkeleton*> skeletons;
-	//std::vector<SEMesh*> meshes;
-
 	std::unordered_map<std::string, SEAsset*> assets;
 
 	int mouseX, mouseY;
@@ -81,5 +81,7 @@ private:
 
 	SEShader defaultSH, curveSH;
 
-	void updatePolygonPath();
+	float physicsTimer;
+
+	//void updatePolygonPath();
 };

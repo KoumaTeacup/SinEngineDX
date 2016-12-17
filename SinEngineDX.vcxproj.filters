@@ -108,6 +108,12 @@
     <ClInclude Include="movement.h">
       <Filter>Functional</Filter>
     </ClInclude>
+    <ClInclude Include="rigidbody.h">
+      <Filter>Functional</Filter>
+    </ClInclude>
+    <ClInclude Include="spring.h">
+      <Filter>Primitive</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="framework.cpp">
@@ -178,6 +184,12 @@
     </ClCompile>
     <ClCompile Include="movement.cpp">
       <Filter>Functional</Filter>
+    </ClCompile>
+    <ClCompile Include="rigidbody.cpp">
+      <Filter>Functional</Filter>
+    </ClCompile>
+    <ClCompile Include="spring.cpp">
+      <Filter>Primitive</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

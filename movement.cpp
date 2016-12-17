@@ -39,7 +39,7 @@ void SEMovement::AddWorldTranslate(FXMVECTOR trans) {
 	worldTranslate.x = worldTranslate.x > 250.0f ? 250.0f : worldTranslate.x;
 	worldTranslate.x = worldTranslate.x < -250.0f ? -250.0f : worldTranslate.x;
 	worldTranslate.y = worldTranslate.y > 200.0f ? 200.0f : worldTranslate.y;
-	worldTranslate.y = worldTranslate.y < 5.0f ? 5.0f : worldTranslate.y;
+	worldTranslate.y = worldTranslate.y < 0.0 ? 0.0f : worldTranslate.y;
 	worldTranslate.z = worldTranslate.z > 250.0f ? 250.0f : worldTranslate.z;
 	worldTranslate.z = worldTranslate.z < -250.0f ? -250.0f : worldTranslate.z;
 }
@@ -50,6 +50,15 @@ void SEMovement::SetScale(DirectX::FXMVECTOR scale) {
 
 DirectX::FXMVECTOR SEMovement::getWorldTranslate() {
 	return XMLoadFloat3(&worldTranslate);
+}
+
+DirectX::FXMVECTOR SEMovement::getWorldScale() {
+	return XMLoadFloat3(&worldScale);
+}
+
+void SEMovement::computePhysicsRotation(DirectX::FXMVECTOR omega) {
+	SEQuaternion R = XMQuaternionRotationAxis(omega, XMVector3Length(omega).m128_f32[0]);
+	worldRotation = R.normalize() * worldRotation;
 }
 
 void SEMovement::Tick(float dt, SEAsset *owner) {

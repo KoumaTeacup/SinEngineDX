@@ -175,10 +175,12 @@
     <ClInclude Include="movement.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="asset.h" />
+    <ClInclude Include="rigidbody.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="skeleton.h" />
     <ClInclude Include="spline.h" />
     <ClInclude Include="states.h" />
+    <ClInclude Include="spring.h" />
     <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="VQS.h" />
@@ -200,10 +202,12 @@
     <ClCompile Include="movement.cpp" />
     <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="asset.cpp" />
+    <ClCompile Include="rigidbody.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="skeleton.cpp" />
     <ClCompile Include="spline.cpp" />
     <ClCompile Include="states.cpp" />
+    <ClCompile Include="spring.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="VQS.cpp" />
